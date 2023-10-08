@@ -1,6 +1,7 @@
 import Search from '@/components/atoms/Search';
 import { useState } from 'react';
 import CardRoom from '../molecules/CardRoom';
+import { motion as mo } from 'framer-motion';
 
 interface ListRooms {
   id: string;
@@ -29,6 +30,38 @@ const listRooms: ListRooms[] = [
     updated_at: 1664603412,
     countUnread: 0,
   },
+  {
+    id: '3',
+    name: 'Udin',
+    foto: 'https://picsum.photos/200?random=3',
+    lastMessage: 'Hallo',
+    updated_at: 1696744212,
+    countUnread: 2,
+  },
+  {
+    id: '4',
+    name: 'Udin',
+    foto: 'https://picsum.photos/200?random=4',
+    lastMessage: 'Hallo',
+    updated_at: 1696744212,
+    countUnread: 2,
+  },
+  {
+    id: '5',
+    name: 'Udin',
+    foto: 'https://picsum.photos/200?random=5',
+    lastMessage: 'Hallo',
+    updated_at: 1696744212,
+    countUnread: 2,
+  },
+  {
+    id: '6',
+    name: 'Udin',
+    foto: 'https://picsum.photos/200?random=6',
+    lastMessage: 'Hallo',
+    updated_at: 1696744212,
+    countUnread: 2,
+  },
 ];
 
 export default function PersonalView() {
@@ -48,16 +81,21 @@ export default function PersonalView() {
     <div className="px-5 flex flex-col gap-5">
       <Search searchValue={searchValue} setSearchValue={setSearchValue} />
       <div className="flex flex-col gap-2">
-        {filteredRooms.map((room) => (
-          <CardRoom
-            key={room.id}
-            href={`/personal/${room.id}`}
-            name={room.name}
-            lastMessage={room.lastMessage}
-            foto={room.foto}
-            countUnread={room.countUnread}
-            updated_at={room.updated_at}
-          />
+        {filteredRooms.map((room, index) => (
+          <mo.div
+            initial={{ opacity: 0, transform: 'translateY(50px)' }}
+            animate={{ opacity: 1, transform: 'translateY(0px)' }}
+            transition={{ delay: index * 0.3, duration: 0.3 }}
+            key={room.id}>
+            <CardRoom
+              href={`/personal/${room.id}`}
+              name={room.name}
+              lastMessage={room.lastMessage}
+              foto={room.foto}
+              countUnread={room.countUnread}
+              updated_at={room.updated_at}
+            />
+          </mo.div>
         ))}
       </div>
     </div>
