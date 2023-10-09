@@ -13,7 +13,7 @@ export default function InputChat({ value, onChange }: Props) {
       variant="unstyled"
       autosize
       autoFocus
-      className="[&>div>textarea]:p-0 border rounded-md px-3 pt-2 pb-1"
+      className="[&>div>textarea]:p-0"
       minRows={1}
       maxRows={4}
       value={value}
