@@ -1,4 +1,5 @@
 import cn from '@/utils/cn';
+import { Loader } from '@mantine/core';
 
 type Props = {
   type?: 'button' | 'submit';
@@ -29,10 +30,21 @@ export default function Button({
         {
           'bg-black text-white ': variant === 'fill',
           'bg-white text-black border border-gray-200': variant === 'outline',
+          'cursor-not-allowed hover:shadow-none bg-black/80':
+            isDisabled || isLoading,
         },
         className
       )}>
-      {children}
+      {isLoading ? (
+        <Loader
+          style={{ fill: '#fff' }}
+          variant="dots"
+          size="sm"
+          className="m-auto h-[20px]"
+        />
+      ) : (
+        children
+      )}
     </button>
   );
 }

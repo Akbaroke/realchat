@@ -6,10 +6,10 @@ import { RiOpenaiFill } from 'react-icons/ri';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { ScrollArea } from '@mantine/core';
 import InputChat from '@/components/atoms/InputChat';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/atoms/Button';
 import TooltipComp from '@/components/atoms/TooltipComp';
-import BallonChat from '@/components/atoms/chat/ballonChat';
+import BallonChat from '@/components/atoms/chat/BallonChat';
 
 export interface DataChats {
   id: string;
@@ -85,6 +85,14 @@ export default function Personal() {
   const [textChat, setTextChat] = useState('');
   const [dataChats, setDataChats] = useState<DataChats[]>(dummyChats);
   const USER_ID = '2';
+  const viewport = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    viewport?.current?.scrollTo({
+      top: viewport.current.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, [dataChats]);
 
   return (
     <div className="h-screen flex flex-col justify-between">
@@ -108,7 +116,9 @@ export default function Personal() {
         </div>
         <BsThreeDotsVertical size={16} />
       </div>
-      <ScrollArea className="flex-1 px-5 [&>div>div>div:first-child]:pt-5">
+      <ScrollArea
+        className="flex-1 px-5 [&>div>div>div:first-child]:pt-5"
+        viewportRef={viewport}>
         {dataChats.map((chat, index) => (
           <BallonChat
             varian={chat.user_id === USER_ID ? 'right' : 'left'}

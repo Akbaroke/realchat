@@ -6,13 +6,14 @@ interface AuthState {
 }
 
 export interface UserType {
-  username: string;
+  id: string;
+  name: string;
   email: string;
   image: string;
 }
 
 const initialState: AuthState = {
-  isLoggedIn: true,
+  isLoggedIn: false,
   user: null,
 };
 
