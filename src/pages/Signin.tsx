@@ -1,14 +1,15 @@
 import Button from '@/components/atoms/Button';
 import ButtonGoogle from '@/components/atoms/ButtonGoogle';
 import Input from '@/components/atoms/Input';
+import {
+  toastError,
+  toastLoading,
+  toastSuccess,
+} from '@/components/atoms/Toast';
 import { auth } from '@/config/firebase';
-import setProfileService, { UserDataType } from '@/services/setProfile.service';
-import { UserType, login } from '@/store/slices/authSlice';
 import { isEmail, useForm } from '@mantine/form';
-import { signInWithPopup } from 'firebase/auth';
-import { GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
 type FormType = {
@@ -17,7 +18,6 @@ type FormType = {
 };
 
 export default function Signin() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,23 +35,23 @@ export default function Signin() {
     },
   });
 
-  const handleGoogleSignin = async () => {
+  const handleSignin = async () => {
+    toastLoading('Proses signup...', 'signup');
     setIsLoading(true);
     try {
-      const provider = new GoogleAuthProvider();
-      const res = await signInWithPopup(auth, provider);
-      const { uid, displayName, email, photoURL } = res.user;
-      const userData: UserDataType | UserType = {
-        id: uid,
-        name: displayName || '',
-        email: email || '',
-        foto: photoURL || '',
-      };
-      await setProfileService(userData);
-      dispatch(login(userData as unknown as UserType));
+      const res = await signInWithEmailAndPassword(
+        auth,
+        form.values.email,
+        form.values.password
+      );
+      const { uid } = res.user;
+
+      form.reset();
+      toastSuccess('Signup success.', 'signup');
       navigate('/');
     } catch (error) {
-      console.error(error);
+      console.log(error);
+      toastError('Signup failed.', 'signup');
     } finally {
       setIsLoading(false);
     }
@@ -61,9 +61,7 @@ export default function Signin() {
     <div className="max-w-[400px] m-auto sm:mt-5 sm:shadow-md rounded-xl p-5 sm:p-8 flex flex-col gap-3">
       <div className="flex flex-col gap-6 mt-5">
         <h1 className="text-[18px] font-semibold">Sign in</h1>
-        <ButtonGoogle onClick={handleGoogleSignin}>
-          Sign in with google
-        </ButtonGoogle>
+        <ButtonGoogle>Sign in with google</ButtonGoogle>
       </div>
       <div className="flex items-center [&>span]:h-[1px] [&>span]:w-full [&>span]:bg-gray-100 gap-3 mt-2">
         <span></span>

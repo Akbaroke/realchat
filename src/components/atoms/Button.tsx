@@ -37,7 +37,7 @@ export default function Button({
       )}>
       {isLoading ? (
         <Loader
-          style={{ fill: '#fff' }}
+          style={{ fill: variant === 'fill' ? '#fff' : '#000' }}
           variant="dots"
           size="sm"
           className="m-auto h-[20px]"

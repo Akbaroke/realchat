@@ -1,8 +1,18 @@
 import Button from '@/components/atoms/Button';
 import ButtonGoogle from '@/components/atoms/ButtonGoogle';
 import Input from '@/components/atoms/Input';
-import { isEmail, useForm } from '@mantine/form';
-import { Link } from 'react-router-dom';
+import {
+  toastError,
+  toastLoading,
+  toastSuccess,
+} from '@/components/atoms/Toast';
+import { auth } from '@/config/firebase';
+import setProfileService, { UserDataType } from '@/services/setProfile.service';
+import { UserType } from '@/store/slices/authSlice';
+import { isEmail, matchesField, useForm } from '@mantine/form';
+import { createUserWithEmailAndPassword } from 'firebase/auth/cordova';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 type FormType = {
   name: string;
@@ -12,6 +22,9 @@ type FormType = {
 };
 
 export default function Signup() {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<FormType>({
     validateInputOnChange: true,
     validateInputOnBlur: true,
@@ -22,11 +35,46 @@ export default function Signup() {
       confirmPassword: '',
     },
     validate: {
+      name: (value) => {
+        if (!/^[a-zA-Z ]{3,10}$/.test(value)) {
+          return 'Invalid name. Use only letters with 3 - 10 characters.';
+        }
+        return null;
+      },
       email: isEmail('Email is not valid.'),
       password: (value) =>
         value.length < 8 ? 'Password must be at least 8 characters.' : null,
+      confirmPassword: matchesField('password', 'Passwords are not the same'),
     },
   });
+
+  const handleSignup = async () => {
+    toastLoading('Proses signup...', 'signup');
+    setIsLoading(true);
+    try {
+      const res = await createUserWithEmailAndPassword(
+        auth,
+        form.values.email,
+        form.values.password
+      );
+      const { uid, displayName, email, photoURL } = res.user;
+      const userData: UserDataType | UserType = {
+        id: uid,
+        name: displayName || '',
+        email: email || '',
+        foto: photoURL || '',
+      };
+      await setProfileService(userData);
+      form.reset();
+      toastSuccess('Signup success.', 'signup');
+      navigate('/signin');
+    } catch (error) {
+      console.log(error);
+      toastError('Signup failed.', 'signup');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-[400px] m-auto sm:mt-5 sm:shadow-md rounded-xl p-5 sm:p-8 flex flex-col gap-3">
@@ -39,7 +87,9 @@ export default function Signup() {
         <p className="text-center text-[12px] text-gray-400">Or</p>
         <span></span>
       </div>
-      <form className="flex flex-col gap-1">
+      <form
+        className="flex flex-col gap-1"
+        onSubmit={form.onSubmit(handleSignup)}>
         <Input
           id="name"
           label="Name"
@@ -76,7 +126,9 @@ export default function Signup() {
           errorLabel={form.errors.confirmPassword as string}
           onChange={(e) => form.setFieldValue('confirmPassword', e as string)}
         />
-        <Button className="mt-5">Sign up</Button>
+        <Button className="mt-5" type="submit" isLoading={isLoading}>
+          Sign up
+        </Button>
       </form>
       <div className="text-[14px] m-auto mt-3 text-gray-400">
         Dont have an account ?{' '}
