@@ -36,8 +36,8 @@ export default function Signup() {
     },
     validate: {
       name: (value) => {
-        if (!/^[a-zA-Z ]{3,10}$/.test(value)) {
-          return 'Invalid name. Use only letters with 3 - 10 characters.';
+        if (!/^[a-zA-Z ]{3,20}$/.test(value)) {
+          return 'Invalid name. Use only letters with 3 - 20 characters.';
         }
         return null;
       },
@@ -60,7 +60,7 @@ export default function Signup() {
       const { uid, displayName, email, photoURL } = res.user;
       const userData: UserDataType | UserType = {
         id: uid,
-        name: displayName || '',
+        name: form.values.name || displayName || '',
         email: email || '',
         foto: photoURL || '',
       };

@@ -7,9 +7,12 @@ import {
   toastSuccess,
 } from '@/components/atoms/Toast';
 import { auth } from '@/config/firebase';
+import { getProfileById } from '@/services/getProfile.service';
+import { UserType, login } from '@/store/slices/authSlice';
 import { isEmail, useForm } from '@mantine/form';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
 type FormType = {
@@ -19,6 +22,7 @@ type FormType = {
 
 export default function Signin() {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormType>({
@@ -44,8 +48,8 @@ export default function Signin() {
         form.values.email,
         form.values.password
       );
-      const { uid } = res.user;
-
+      const data = await getProfileById(res.user.uid);
+      dispatch(login(data as unknown as UserType));
       form.reset();
       toastSuccess('Signup success.', 'signup');
       navigate('/');
@@ -68,7 +72,9 @@ export default function Signin() {
         <p className="text-center text-[12px] text-gray-400">Or</p>
         <span></span>
       </div>
-      <form className="flex flex-col gap-1">
+      <form
+        className="flex flex-col gap-1"
+        onSubmit={form.onSubmit(handleSignin)}>
         <Input
           id="email"
           label="Email"
@@ -87,7 +93,7 @@ export default function Signin() {
           errorLabel={form.errors.password as string}
           onChange={(e) => form.setFieldValue('password', e as string)}
         />
-        <Button className="mt-5" isLoading={isLoading}>
+        <Button className="mt-5" isLoading={isLoading} type="submit">
           Sign in
         </Button>
       </form>
