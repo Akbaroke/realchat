@@ -7,7 +7,7 @@ import {
   toastSuccess,
 } from '@/components/atoms/Toast';
 import { auth } from '@/config/firebase';
-import setProfileService, { UserDataType } from '@/services/setProfile.service';
+import setProfileService from '@/services/setProfile.service';
 import { UserType } from '@/store/slices/authSlice';
 import { isEmail, matchesField, useForm } from '@mantine/form';
 import { createUserWithEmailAndPassword } from 'firebase/auth/cordova';
@@ -57,10 +57,10 @@ export default function Signup() {
         form.values.email,
         form.values.password
       );
-      const { uid, displayName, email, photoURL } = res.user;
-      const userData: UserDataType | UserType = {
+      const { uid, email, photoURL } = res.user;
+      const userData: UserType = {
         id: uid,
-        name: form.values.name || displayName || '',
+        name: form.values.name || '',
         email: email || '',
         foto: photoURL || '',
       };

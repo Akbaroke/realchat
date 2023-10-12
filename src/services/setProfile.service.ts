@@ -1,14 +1,8 @@
 import { firestore } from '@/config/firebase';
+import { UserType } from '@/store/slices/authSlice';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
-export type UserDataType = {
-  id: string;
-  name: string;
-  email: string;
-  foto: string;
-};
-
-export default async function setProfileService(userData: UserDataType) {
+export default async function setProfileService(userData: UserType) {
   const { id, name, email, foto } = userData;
   const usersRef = doc(firestore, 'users', id);
   const data = await getDoc(usersRef);

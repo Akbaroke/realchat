@@ -48,7 +48,7 @@ export default function Signin() {
         form.values.email,
         form.values.password
       );
-      const data = await getProfileById(res.user.uid);
+      const data = await getProfileById(res.user.uid);      
       dispatch(login(data as unknown as UserType));
       form.reset();
       toastSuccess('Signup success.', 'signup');

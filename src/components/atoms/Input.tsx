@@ -1,5 +1,6 @@
 import cn from '@/utils/cn';
 import { Loader } from '@mantine/core';
+import { BiLockAlt } from 'react-icons/bi';
 
 interface Props {
   label: string;
@@ -51,7 +52,7 @@ const Input: React.FC<Props> = ({
         className={cn(
           'border border-gray-200 rounded-lg h-[40px] -mt-[3px] text-[12px] text-one outline-none focus:border-black transition-colors duration-500 bg-white px-3',
           {
-            'pl-6 cursor-not-allowed': disabled,
+            'pl-8 cursor-not-allowed': disabled,
           },
           {
             'border-red-400': errorLabel,
@@ -64,6 +65,12 @@ const Input: React.FC<Props> = ({
       )}
       {isLoading && (
         <Loader color="dark" size="xs" className="absolute bottom-2 right-1" />
+      )}
+      {disabled && (
+        <BiLockAlt
+          size={17}
+          className="absolute bottom-3 left-2 text-gray-800"
+        />
       )}
     </div>
   );
