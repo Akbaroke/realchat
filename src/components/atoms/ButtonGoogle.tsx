@@ -4,7 +4,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { signInWithPopup } from 'firebase/auth';
-import setProfileService, { UserDataType } from '@/services/setProfile.service';
+import setProfileService from '@/services/setProfile.service';
 import { UserType, login } from '@/store/slices/authSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +24,7 @@ export default function ButtonGoogle({ children }: Props) {
       const provider = new GoogleAuthProvider();
       const res = await signInWithPopup(auth, provider);
       const { uid, displayName, email, photoURL } = res.user;
-      const userData: UserDataType | UserType = {
+      const userData: UserType = {
         id: uid,
         name: displayName || '',
         email: email || '',

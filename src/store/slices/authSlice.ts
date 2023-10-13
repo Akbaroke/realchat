@@ -10,7 +10,7 @@ export interface UserType {
   name: string;
   email: string;
   bio?: string;
-  foto: string;
+  foto?: string;
 }
 
 const initialState: AuthState = {
@@ -26,6 +26,9 @@ export const authSlice = createSlice({
       state.isLoggedIn = true;
       state.user = action.payload;
     },
+    updateAuth: (state, action: PayloadAction<UserType>) => {
+      state.user = action.payload;
+    },
     logout: (state) => {
       state.isLoggedIn = false;
       state.user = null;
@@ -33,5 +36,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { login, updateAuth, logout } = authSlice.actions;
 export default authSlice.reducer;

@@ -10,8 +10,6 @@ export default async function setProfileService(userData: UserType) {
     try {
       await updateDoc(usersRef, {
         ...data.data(),
-        id: id,
-        name: name,
         email: email,
         foto: foto,
       });

@@ -5,12 +5,27 @@ import UserMiddleware from '@/middlewares/UserMiddleware';
 import Home from '@/pages/Home';
 import Personal from '@/pages/Personal';
 import Profile from '@/pages/Profile';
+import GuestMiddleware from '@/middlewares/GuestMiddleware';
 
 export default function Root() {
   return (
     <Routes>
-      <Route path="/signin" element={<Signin />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route
+        path="/signin"
+        element={
+          <GuestMiddleware>
+            <Signin />
+          </GuestMiddleware>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <GuestMiddleware>
+            <Signup />
+          </GuestMiddleware>
+        }
+      />
       <Route
         path="/personal/:id"
         element={
