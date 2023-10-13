@@ -77,7 +77,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="max-w-[400px] m-auto sm:mt-5 sm:shadow-md rounded-xl p-5 sm:p-8 flex flex-col gap-3">
+    <div className="m-auto rounded-xl p-5 flex flex-col gap-3">
       <div className="flex flex-col gap-6 mt-5">
         <h1 className="text-[18px] font-semibold">Sign up</h1>
         <ButtonGoogle>Sign up with google</ButtonGoogle>

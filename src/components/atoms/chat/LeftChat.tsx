@@ -19,7 +19,7 @@ export default function LeftChat({ chat }: Props) {
     <mo.div initial={false} animate={isOpen ? 'open' : 'closed'}>
       <div className="flex items-end gap-2">
         <img
-          src={chat.image}
+          src={chat.foto}
           alt=""
           width={30}
           height={30}

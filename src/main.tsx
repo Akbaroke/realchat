@@ -11,10 +11,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
       <Container>
-        <>
-          <Toaster richColors position="top-center" />
-          <App />
-        </>
+        <Toaster richColors position="top-center" />
+        <App />
       </Container>
     </Provider>
   </React.StrictMode>

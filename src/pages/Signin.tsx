@@ -7,7 +7,7 @@ import {
   toastSuccess,
 } from '@/components/atoms/Toast';
 import { auth } from '@/config/firebase';
-import { getProfileById } from '@/services/getProfile.service';
+import getProfile from '@/services/getProfile';
 import { UserType, login } from '@/store/slices/authSlice';
 import { isEmail, useForm } from '@mantine/form';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -22,7 +22,7 @@ type FormType = {
 
 export default function Signin() {
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormType>({
@@ -48,7 +48,7 @@ export default function Signin() {
         form.values.email,
         form.values.password
       );
-      const data = await getProfileById(res.user.uid);      
+      const data = await getProfile(res.user.uid);
       dispatch(login(data as unknown as UserType));
       form.reset();
       toastSuccess('Signup success.', 'signup');
@@ -62,7 +62,7 @@ export default function Signin() {
   };
 
   return (
-    <div className="max-w-[400px] m-auto sm:mt-5 sm:shadow-md rounded-xl p-5 sm:p-8 flex flex-col gap-3">
+    <div className="m-auto rounded-xl p-5 flex flex-col gap-3">
       <div className="flex flex-col gap-6 mt-5">
         <h1 className="text-[18px] font-semibold">Sign in</h1>
         <ButtonGoogle>Sign in with google</ButtonGoogle>

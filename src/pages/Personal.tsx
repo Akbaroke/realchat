@@ -19,7 +19,7 @@ export interface DataChats {
     type: 'picture' | 'coding' | 'openai';
     data: File | string;
   };
-  image: string;
+  foto?: string;
   isRead: boolean;
   isHide: boolean;
   isEdit: boolean;
@@ -33,7 +33,7 @@ const dummyChats: DataChats[] = [
     id: '1',
     user_id: '1',
     message: 'Hello!',
-    image: 'https://picsum.photos/200?random=1',
+    foto: 'https://picsum.photos/200?random=1',
     isRead: true,
     isHide: false,
     isEdit: false,
@@ -45,7 +45,7 @@ const dummyChats: DataChats[] = [
     id: '2',
     user_id: '2',
     message: 'hai!',
-    image: 'https://picsum.photos/200?random=2',
+    foto: 'https://picsum.photos/200?random=2',
     isRead: true,
     isHide: false,
     isEdit: false,
@@ -57,7 +57,7 @@ const dummyChats: DataChats[] = [
     id: '3',
     user_id: '1',
     message: 'hhahaa!',
-    image: 'https://picsum.photos/200?random=1',
+    foto: 'https://picsum.photos/200?random=1',
     isRead: true,
     isHide: false,
     isEdit: false,
@@ -69,7 +69,7 @@ const dummyChats: DataChats[] = [
     id: '4',
     user_id: '2',
     message: 'oke!',
-    image: 'https://picsum.photos/200?random=1',
+    foto: 'https://picsum.photos/200?random=1',
     isRead: false,
     isHide: false,
     isEdit: false,

@@ -1,5 +1,5 @@
 import { auth } from '@/config/firebase';
-import { getProfileById } from '@/services/getProfile.service';
+import getProfile from '@/services/getProfile';
 import { RootState } from '@/store';
 import { UserType, login } from '@/store/slices/authSlice';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -21,7 +21,7 @@ export default function GuestMiddleware({ children }: Props) {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        getProfileById(user.uid).then((data) => {
+        getProfile(user.uid).then((data) => {
           if (data) {
             dispatch(login(data as unknown as UserType));
           }
