@@ -30,7 +30,6 @@ export default function Profile() {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const [isChanged, setIsChanged] = useState(false);
-  console.log(user);
 
   const form = useForm<FormType>({
     validateInputOnChange: true,

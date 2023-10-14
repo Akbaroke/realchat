@@ -4,9 +4,6 @@ import { UserType } from '@/store/slices/authSlice';
 import {
   onSnapshot,
   collection,
-  query,
-  where,
-  getDocs,
   DocumentReference,
   getDoc,
   doc,
@@ -17,15 +14,13 @@ const useSnapshotPersonal = (id: string) => {
   const [personalUpdated, setPersonalUpdated] = useState<ListRooms[]>();
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(firestore, 'personal'),
-      async () => {
-        const q = query(
-          collection(firestore, 'personal'),
-          where('users_id', 'array-contains', id)
-        );
-        const snapshot = await getDocs(q);
+    const personalCollection = collection(firestore, 'personal');
+    const chatsCollection = collection(firestore, 'chats');
 
+    // Listen to updates in the 'personal' collection
+    const personalUnsubscribe = onSnapshot(
+      personalCollection,
+      async (snapshot) => {
         const data = await Promise.all(
           snapshot.docs.map(async (field) => {
             const lastMessageRef = field.data()
@@ -53,12 +48,30 @@ const useSnapshotPersonal = (id: string) => {
           })
         );
 
-        setPersonalUpdated(data as unknown as ListRooms[]);
+        setPersonalUpdated(data as ListRooms[]);
       }
     );
 
-    return unsubscribe;
-  }, [id]);
+    // Listen to updates in the 'chats' collection
+    const chatsUnsubscribe = onSnapshot(chatsCollection, async (snapshot) => {
+      const updatedPersonal = personalUpdated?.map((room) => {
+        const chatsFilter = snapshot.docs.filter(
+          (doc) => doc.data().personal_id === room.id && !doc.data().isRead
+        );
+        return {
+          ...room,
+          countUnread: chatsFilter.length,
+        };
+      });
+
+      setPersonalUpdated(updatedPersonal);
+    });
+
+    return () => {
+      personalUnsubscribe();
+      chatsUnsubscribe();
+    };
+  }, [id, personalUpdated]);
 
   return personalUpdated;
 };

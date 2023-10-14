@@ -2,11 +2,11 @@ import Search from '@/components/atoms/Search';
 import { useState } from 'react';
 import CardRoom from '../molecules/CardRoom';
 import { motion as mo } from 'framer-motion';
-import { DataChats } from '@/pages/Personal';
 import useSnapshotPersonal from '@/hooks/useSnapshotPersonal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { UserType } from '@/store/slices/authSlice';
+import { DataChats } from '@/hooks/useSnapshotChats';
 
 export interface ListRooms {
   id: string;

@@ -1,8 +1,9 @@
-import { DataChats } from '@/pages/Personal';
 import TimeDisplay from '../TimeDisplay';
 import { useState } from 'react';
 import { useClickOutside } from '@mantine/hooks';
 import { Variants, motion as mo } from 'framer-motion';
+import { DataChats } from '@/hooks/useSnapshotChats';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 type Props = {
   chat: DataChats;
@@ -17,10 +18,14 @@ export default function LeftChat({ chat }: Props) {
 
   return (
     <mo.div initial={false} animate={isOpen ? 'open' : 'closed'}>
-      <div className="flex items-end gap-2">
-        <img
-          src={chat.foto}
-          alt=""
+      <div className="flex items-end gap-2 mb-4">
+        <LazyLoadImage
+          alt="foto"
+          effect="blur"
+          src={
+            chat.foto ||
+            'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg'
+          }
           width={30}
           height={30}
           className="rounded-lg h-max relative bottom-2"

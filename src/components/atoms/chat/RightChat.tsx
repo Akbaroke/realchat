@@ -1,9 +1,9 @@
-import { DataChats } from '@/pages/Personal';
 import TimeDisplay from '../TimeDisplay';
 import { BsCheckAll, BsCheck } from 'react-icons/bs';
 import { Variants, motion as mo } from 'framer-motion';
 import { useState } from 'react';
 import { useClickOutside } from '@mantine/hooks';
+import { DataChats } from '@/hooks/useSnapshotChats';
 
 type Props = {
   chat: DataChats;
@@ -18,7 +18,7 @@ export default function RightChat({ chat }: Props) {
 
   return (
     <mo.div initial={false} animate={isOpen ? 'open' : 'closed'}>
-      <div className="flex flex-col gap-1 items-end">
+      <div className="flex flex-col gap-1 items-end mb-4">
         <mo.div
           className="p-3 text-[14px] rounded-xl bg-black text-white w-max relative cursor-pointer"
           whileTap={{ scale: 0.9 }}

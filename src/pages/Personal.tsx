@@ -10,89 +10,30 @@ import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/atoms/Button';
 import TooltipComp from '@/components/atoms/TooltipComp';
 import BallonChat from '@/components/atoms/chat/BallonChat';
-
-export interface DataChats {
-  id: string;
-  user_id: string;
-  message: string;
-  content?: {
-    type: 'picture' | 'coding' | 'openai';
-    data: File | string;
-  };
-  foto?: string;
-  isRead: boolean;
-  isHide: boolean;
-  isEdit: boolean;
-  deleted_at: number;
-  updated_at: number;
-  created_at: number;
-}
-
-const dummyChats: DataChats[] = [
-  {
-    id: '1',
-    user_id: '1',
-    message: 'Hello!',
-    foto: 'https://picsum.photos/200?random=1',
-    isRead: true,
-    isHide: false,
-    isEdit: false,
-    deleted_at: 0,
-    updated_at: 1696744212,
-    created_at: 1696744212,
-  },
-  {
-    id: '2',
-    user_id: '2',
-    message: 'hai!',
-    foto: 'https://picsum.photos/200?random=2',
-    isRead: true,
-    isHide: false,
-    isEdit: false,
-    deleted_at: 0,
-    updated_at: 1696744212,
-    created_at: 1696744212,
-  },
-  {
-    id: '3',
-    user_id: '1',
-    message: 'hhahaa!',
-    foto: 'https://picsum.photos/200?random=1',
-    isRead: true,
-    isHide: false,
-    isEdit: false,
-    deleted_at: 0,
-    updated_at: 1696744212,
-    created_at: 1696744212,
-  },
-  {
-    id: '4',
-    user_id: '2',
-    message: 'oke!',
-    foto: 'https://picsum.photos/200?random=1',
-    isRead: false,
-    isHide: false,
-    isEdit: false,
-    deleted_at: 0,
-    updated_at: 1696837330,
-    created_at: 1696837330,
-  },
-];
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import useSnapshotChats from '@/hooks/useSnapshotChats';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import updateReadChat from '@/services/updateReadChat';
 
 export default function Personal() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [textChat, setTextChat] = useState('');
-  const [dataChats, setDataChats] = useState<DataChats[]>(dummyChats);
-  const USER_ID = '2';
+  const { user } = useSelector((state: RootState) => state.auth);
   const viewport = useRef<HTMLDivElement>(null);
+  const dataChats = useSnapshotChats(id || '');
+  const dataFriend = dataChats?.find((val) => val.user_id !== user?.id);
 
   useEffect(() => {
     viewport?.current?.scrollTo({
       top: viewport.current.scrollHeight,
       behavior: 'smooth',
     });
-  }, [dataChats]);
+    if (dataChats && user?.id) {
+      updateReadChat(dataChats, user?.id || '');
+    }
+  }, [dataChats, user?.id]);
 
   return (
     <div className="h-screen flex flex-col justify-between">
@@ -104,14 +45,18 @@ export default function Personal() {
             <FiChevronLeft size={16} />
           </div>
           <div className="flex items-center gap-2">
-            <img
-              src="https://picsum.photos/200?random=1"
-              alt=""
+            <LazyLoadImage
+              alt="foto"
+              effect="blur"
+              src={
+                dataFriend?.foto ||
+                'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg'
+              }
               width={30}
               height={30}
               className="rounded-lg"
             />
-            <h1 className="font-medium">Udin</h1>
+            <h1 className="font-medium">{dataFriend?.name}</h1>
           </div>
         </div>
         <BsThreeDotsVertical size={16} />
@@ -119,9 +64,9 @@ export default function Personal() {
       <ScrollArea
         className="flex-1 px-5 [&>div>div>div:first-child]:pt-5"
         viewportRef={viewport}>
-        {dataChats.map((chat, index) => (
+        {dataChats?.map((chat, index) => (
           <BallonChat
-            varian={chat.user_id === USER_ID ? 'right' : 'left'}
+            varian={chat.user_id === user?.id ? 'right' : 'left'}
             key={index}
             chat={chat}
           />

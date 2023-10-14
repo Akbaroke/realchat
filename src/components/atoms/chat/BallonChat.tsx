@@ -1,4 +1,4 @@
-import { DataChats } from '@/pages/Personal';
+import { DataChats } from '@/hooks/useSnapshotChats';
 import LeftChat from './LeftChat';
 import RightChat from './RightChat';
 
