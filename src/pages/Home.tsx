@@ -4,8 +4,18 @@ import PersonalView from '@/components/views/PersonalView';
 import GrupView from '@/components/views/GrupView';
 import { Link } from 'react-router-dom';
 import LinkNewChat from '@/components/atoms/LinkNewChat';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { resetPersonal } from '@/store/slices/personalSlice';
 
 export default function Home() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(resetPersonal());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="h-full">
       <div className="flex items-center justify-between p-5">

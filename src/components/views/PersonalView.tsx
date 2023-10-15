@@ -21,13 +21,13 @@ export default function PersonalView() {
   const personal = useSnapshotPersonal(user?.id || '');
 
   const filterRooms = (rooms: ListRooms[], searchValue: string) => {
-    return rooms.filter((room) => {
-      const otherUser = room.users.find((user) => user.id !== user?.id);
+    return rooms?.filter((room) => {
+      const otherUser = room?.users?.find((value) => value?.id !== user?.id);
       const userMatch = otherUser?.name
         .toLowerCase()
         .includes(searchValue.toLowerCase());
 
-      const messageMatch = room.lastMessage.message
+      const messageMatch = room?.lastMessage?.message
         .toLowerCase()
         .includes(searchValue.toLowerCase());
 
@@ -35,7 +35,7 @@ export default function PersonalView() {
     });
   };
 
-  const filteredRooms = filterRooms(personal || [], searchValue);
+  const filteredRooms = filterRooms(personal, searchValue);
 
   return (
     <div className="px-5 flex flex-col gap-5">

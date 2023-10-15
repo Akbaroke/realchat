@@ -7,71 +7,64 @@ import {
   DocumentReference,
   getDoc,
   doc,
+  getDocs,
 } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
 const useSnapshotPersonal = (id: string) => {
-  const [personalUpdated, setPersonalUpdated] = useState<ListRooms[]>();
+  const [personalUpdated, setPersonalUpdated] = useState<ListRooms[]>([]);
 
   useEffect(() => {
     const personalCollection = collection(firestore, 'personal');
     const chatsCollection = collection(firestore, 'chats');
 
-    // Listen to updates in the 'personal' collection
-    const personalUnsubscribe = onSnapshot(
-      personalCollection,
-      async (snapshot) => {
-        const data = await Promise.all(
-          snapshot.docs.map(async (field) => {
-            const lastMessageRef = field.data()
-              .lastMessage as DocumentReference;
-            const lastMessageDoc = await getDoc(lastMessageRef);
-            const lastMessagePath = lastMessageDoc.data();
+    const fetchData = async () => {
+      const personalSnapshot = await getDocs(personalCollection);
+      const updatedData = await Promise.all(
+        personalSnapshot.docs.map(async (field) => {
+          const lastMessageRef = field.data().lastMessage as DocumentReference;
+          const lastMessageDoc = await getDoc(lastMessageRef);
+          const lastMessagePath = lastMessageDoc.data();
 
-            const userPromises = field
-              .data()
-              .users_id.map(async (userId: string | undefined) => {
-                const userDoc = await getDoc(
-                  doc(collection(firestore, 'users'), userId)
-                );
-                return userDoc.data() as UserType;
-              });
+          const userPromises = field
+            .data()
+            .users_id.map(async (userId: string | undefined) => {
+              const userDoc = await getDoc(
+                doc(collection(firestore, 'users'), userId)
+              );
+              return userDoc.data() as UserType;
+            });
 
-            const users = await Promise.all(userPromises);
+          const users = await Promise.all(userPromises);
+          const chatsSnapshot = await getDocs(chatsCollection);
+          const chatsFilter = chatsSnapshot.docs.filter(
+            (doc) =>
+              doc.data().personal_id === field.get('personal_id') &&
+              !doc.data().isRead
+          );
 
-            return {
-              id: field.id,
-              ...field.data(),
-              lastMessage: lastMessagePath,
-              users: users,
-            };
-          })
-        );
+          return {
+            ...field.data(),
+            id: field.id,
+            lastMessage: lastMessagePath,
+            users: users,
+            countUnread: chatsFilter.length,
+          };
+        })
+      );
 
-        setPersonalUpdated(data as ListRooms[]);
-      }
-    );
+      setPersonalUpdated(updatedData as ListRooms[]);
+    };
 
-    // Listen to updates in the 'chats' collection
-    const chatsUnsubscribe = onSnapshot(chatsCollection, async (snapshot) => {
-      const updatedPersonal = personalUpdated?.map((room) => {
-        const chatsFilter = snapshot.docs.filter(
-          (doc) => doc.data().personal_id === room.id && !doc.data().isRead
-        );
-        return {
-          ...room,
-          countUnread: chatsFilter.length,
-        };
-      });
-
-      setPersonalUpdated(updatedPersonal);
-    });
+    const personalUnsubscribe = onSnapshot(personalCollection, fetchData);
+    const chatsUnsubscribe = onSnapshot(chatsCollection, fetchData);
 
     return () => {
       personalUnsubscribe();
       chatsUnsubscribe();
     };
-  }, [id, personalUpdated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   return personalUpdated;
 };

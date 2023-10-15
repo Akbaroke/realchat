@@ -21,6 +21,11 @@ export interface DataChats {
     type: 'picture' | 'coding' | 'openai';
     data: File | string;
   };
+  reply?: {
+    id: string;
+    name: string;
+    message: string;
+  };
   isRead: boolean;
   isHide: boolean;
   isEdit: boolean;
