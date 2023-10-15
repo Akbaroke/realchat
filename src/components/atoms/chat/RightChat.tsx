@@ -24,7 +24,9 @@ export default function RightChat({ chat }: Props) {
           whileTap={{ scale: 0.9 }}
           ref={ref}
           onClick={() => setIsOpen(!isOpen)}>
-          <p>{isMessageHide ? '•••••' : chat.message}</p>
+          <p className="whitespace-pre-line">
+            {isMessageHide ? '•••••' : chat.message}
+          </p>
           <mo.ul
             variants={{
               open: {

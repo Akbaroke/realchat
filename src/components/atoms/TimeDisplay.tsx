@@ -18,7 +18,7 @@ const TimeDisplay: React.FC<Props> = ({ time, className, isTimeOnly }) => {
       if (!isTimeOnly) {
         if (difference >= 31536000) {
           // Lebih dari 1 tahun
-          const formattedDate = date.toLocaleDateString('id-ID', {
+          const formattedDate = date.toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -26,14 +26,14 @@ const TimeDisplay: React.FC<Props> = ({ time, className, isTimeOnly }) => {
           setFormattedTime(formattedDate);
         } else if (difference >= 604800) {
           // Lebih dari 1 minggu
-          const formattedDate = date.toLocaleDateString('id-ID', {
+          const formattedDate = date.toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'short',
           });
           setFormattedTime(formattedDate);
         } else if (difference >= 86400) {
           // Lebih dari 1 hari
-          const dayName = date.toLocaleDateString('id-ID', {
+          const dayName = date.toLocaleDateString('en-US', {
             weekday: 'short',
           });
           setFormattedTime(dayName);
@@ -46,10 +46,7 @@ const TimeDisplay: React.FC<Props> = ({ time, className, isTimeOnly }) => {
           setFormattedTime(`Now`);
         }
       }
-      if (difference <= 60) {
-        setFormattedTime(`Now`);
-      }
-    }, 500); // Update every second
+    }, 500); 
 
     return () => clearInterval(intervalId);
   }, [isTimeOnly, time]);

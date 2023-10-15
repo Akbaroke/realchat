@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { UserType } from '@/store/slices/authSlice';
 import { DataChats } from '@/hooks/useSnapshotChats';
+import { Loader } from '@mantine/core';
 
 export interface ListRooms {
   id: string;
@@ -18,7 +19,7 @@ export interface ListRooms {
 export default function PersonalView() {
   const { user } = useSelector((state: RootState) => state.auth);
   const [searchValue, setSearchValue] = useState('');
-  const personal = useSnapshotPersonal(user?.id || '');
+  const { personalRealtime, isLoading } = useSnapshotPersonal(user?.id || '');
 
   const filterRooms = (rooms: ListRooms[], searchValue: string) => {
     return rooms?.filter((room) => {
@@ -35,7 +36,7 @@ export default function PersonalView() {
     });
   };
 
-  const filteredRooms = filterRooms(personal, searchValue);
+  const filteredRooms = filterRooms(personalRealtime, searchValue);
 
   return (
     <div className="px-5 flex flex-col gap-5">
@@ -50,6 +51,9 @@ export default function PersonalView() {
             <CardRoom room={room} />
           </mo.div>
         ))}
+        {isLoading && personalRealtime.length === 0 && (
+          <Loader color="dark" size="sm" variant="dots" className="m-auto" />
+        )}
       </div>
     </div>
   );

@@ -12,13 +12,15 @@ import {
 import { useEffect, useState } from 'react';
 
 const useSnapshotPersonal = (id: string) => {
-  const [personalUpdated, setPersonalUpdated] = useState<ListRooms[]>([]);
+  const [personalRealtime, setPersonalRealtime] = useState<ListRooms[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const personalCollection = collection(firestore, 'personal');
     const chatsCollection = collection(firestore, 'chats');
 
     const fetchData = async () => {
+      setIsLoading(true);
       const personalSnapshot = await getDocs(personalCollection);
       const updatedData = await Promise.all(
         personalSnapshot.docs.map(async (field) => {
@@ -53,7 +55,8 @@ const useSnapshotPersonal = (id: string) => {
         })
       );
 
-      setPersonalUpdated(updatedData as ListRooms[]);
+      setPersonalRealtime(updatedData as ListRooms[]);
+      setIsLoading(false);
     };
 
     const personalUnsubscribe = onSnapshot(personalCollection, fetchData);
@@ -66,7 +69,7 @@ const useSnapshotPersonal = (id: string) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  return personalUpdated;
+  return { personalRealtime, isLoading };
 };
 
 export default useSnapshotPersonal;

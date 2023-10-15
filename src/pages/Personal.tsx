@@ -23,6 +23,7 @@ import { firestore } from '@/config/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import getFriend from '@/services/getFriend';
 import { UserType } from '@/store/slices/authSlice';
+import ModalProfilePicture from '@/components/molecules/ModalProfilePicture';
 
 export default function Personal() {
   const navigate = useNavigate();
@@ -111,6 +112,12 @@ export default function Personal() {
     messagesByDay[messageDayTimestamp].push(message);
   });
 
+  const foto =
+    dataFriend?.foto ||
+    personal.foto ||
+    fried?.foto ||
+    'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
+
   return (
     <div className="h-screen flex flex-col justify-between">
       <div className="flex justify-between items-center p-5 border-b">
@@ -121,20 +128,17 @@ export default function Personal() {
             <FiChevronLeft size={16} />
           </div>
           <div className="flex items-center gap-2">
-            <LazyLoadImage
-              alt="foto"
-              effect="blur"
-              src={
-                dataFriend?.foto ||
-                personal.foto ||
-                fried?.foto ||
-                'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg'
-              }
-              width={30}
-              height={30}
-              className="rounded-lg"
-            />
-            <h1 className="font-medium">
+            <ModalProfilePicture imgSrc={foto}>
+              <LazyLoadImage
+                alt="foto"
+                effect="blur"
+                src={foto}
+                width={30}
+                height={30}
+                className="rounded-lg"
+              />
+            </ModalProfilePicture>
+            <h1 className="font-medium pb-1">
               {dataFriend?.name || personal.name || fried?.name}
             </h1>
           </div>
@@ -144,47 +148,38 @@ export default function Personal() {
       <ScrollArea
         className="flex-1 px-5 [&>div>div>div:first-child]:pt-5"
         viewportRef={viewport}>
-        {/* {dataChats?.map((chat, index) => (
-          <BallonChat
-            varian={chat.user_id === user?.id ? 'right' : 'left'}
-            key={index}
-            chat={chat}
-          />
-        ))} */}
-        <>
-          {Object.entries(messagesByDay).map(([timestamp, messages]) => {
-            const messageDay = new Date(Number(timestamp));
-            const isToday = isSameDay(todayTimestamp, Number(timestamp));
-            const dateText = isToday
-              ? 'Today'
-              : messageDay.toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                });
-            return (
-              <div key={timestamp}>
-                <div className="py-5">
-                  <div className="flex justify-center gap-4 items-center px-[25px]">
-                    <span className="w-full h-[1px] rounded-sm bg-[#BCBCBC]/50"></span>
-                    <p className="text-[12px] text-[#bcbcbc] whitespace-nowrap">
-                      {dateText}
-                    </p>
-                    <span className="w-full h-[1px] rounded-sm bg-[#BCBCBC]/50"></span>
-                  </div>
+        {Object.entries(messagesByDay).map(([timestamp, messages]) => {
+          const messageDay = new Date(Number(timestamp));
+          const isToday = isSameDay(todayTimestamp, Number(timestamp));
+          const dateText = isToday
+            ? 'Today'
+            : messageDay.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              });
+          return (
+            <div key={timestamp}>
+              <div className="py-5">
+                <div className="flex justify-center gap-4 items-center px-[25px]">
+                  <span className="w-full h-[1px] rounded-sm bg-[#BCBCBC]/50"></span>
+                  <p className="text-[12px] text-[#bcbcbc] whitespace-nowrap">
+                    {dateText}
+                  </p>
+                  <span className="w-full h-[1px] rounded-sm bg-[#BCBCBC]/50"></span>
                 </div>
-                {messages.map((message, index) => (
-                  <BallonChat
-                    varian={message.user_id === user?.id ? 'right' : 'left'}
-                    key={index}
-                    chat={message}
-                  />
-                ))}
               </div>
-            );
-          })}
-        </>
+              {messages.map((message, index) => (
+                <BallonChat
+                  varian={message.user_id === user?.id ? 'right' : 'left'}
+                  key={index}
+                  chat={message}
+                />
+              ))}
+            </div>
+          );
+        })}
       </ScrollArea>
       <div className="h-max border-t flex flex-col gap-6 p-5">
         <InputChat
