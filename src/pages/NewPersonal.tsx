@@ -1,8 +1,8 @@
 import UserSearch from '@/components/atoms/UserSearch';
 import { useEffect, useState } from 'react';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiChevronLeft } from 'react-icons/fi';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion as mo } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
 import { useDebouncedState } from '@mantine/hooks';
@@ -10,6 +10,7 @@ import getUserDatas, { UserInterface } from '@/services/getUsers';
 import { Loader, Transition } from '@mantine/core';
 import { useDispatch } from 'react-redux';
 import { PersonalState, setPersonal } from '@/store/slices/personalSlice';
+import { DEFAULT_FOTO } from '@/assets';
 
 export default function NewPersonal() {
   const dispatch = useDispatch();
@@ -42,9 +43,11 @@ export default function NewPersonal() {
   return (
     <div className="flex flex-col">
       <div className="flex items-center px-5 py-3 border-b-2 sticky top-0 gap-5">
-        <Link to="/">
-          <FiArrowLeft size={18} />
-        </Link>
+        <div
+          className="p-2 rounded-md border w-max text-gray-500 cursor-pointer hover:text-black transition-all"
+          onClick={() => navigate('/')}>
+          <FiChevronLeft size={16} />
+        </div>
         <h1 className="font-medium">New Personal</h1>
       </div>
       <div className="p-5">
@@ -81,7 +84,7 @@ export default function NewPersonal() {
                       effect="blur"
                       width={50}
                       height={50}
-                      src={user.foto}
+                      src={user.foto || DEFAULT_FOTO}
                       className="rounded-lg"
                     />
                     <div className="grid grid-cols-3 w-full">

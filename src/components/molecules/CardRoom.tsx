@@ -7,6 +7,7 @@ import { BsCheck, BsCheckAll } from 'react-icons/bs';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { setPersonal } from '@/store/slices/personalSlice';
+import { DEFAULT_FOTO } from '@/assets';
 
 type Props = {
   room: ListRooms;
@@ -41,7 +42,7 @@ export default function CardRoom({ room }: Props) {
         effect="blur"
         width={50}
         height={50}
-        src={users?.foto}
+        src={users?.foto || DEFAULT_FOTO}
         className="rounded-lg"
       />
       <div className="grid grid-cols-3 w-full">

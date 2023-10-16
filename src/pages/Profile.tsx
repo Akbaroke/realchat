@@ -18,6 +18,7 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 import ModalProfilePicture from '@/components/molecules/ModalProfilePicture';
 import updateProfile from '@/services/updateProfile';
 import { useEffect, useState } from 'react';
+import { DEFAULT_FOTO } from '@/assets';
 
 type FormType = {
   name: string;
@@ -42,8 +43,6 @@ export default function Profile() {
     validate: {
       name: (value) =>
         value.length < 8 ? 'Name must be at least 8 characters.' : null,
-      bio: (value) =>
-        value.length < 8 ? 'Bio must be at least 8 characters.' : null,
     },
   });
 
@@ -109,10 +108,7 @@ export default function Profile() {
               <LazyLoadImage
                 alt="foto"
                 effect="blur"
-                src={
-                  user?.foto ||
-                  'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg'
-                }
+                src={user?.foto || DEFAULT_FOTO}
                 className="w-28 h-28 rounded-full"
               />
             </ModalProfilePicture>

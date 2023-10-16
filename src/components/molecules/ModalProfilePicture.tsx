@@ -2,6 +2,7 @@ import { Loader, Modal, useMantineTheme } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { DEFAULT_FOTO } from '@/assets';
 
 type Props = {
   imgSrc?: string;
@@ -9,7 +10,7 @@ type Props = {
 };
 
 export default function ModalProfilePicture({
-  imgSrc = 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
+  imgSrc = DEFAULT_FOTO,
   children,
 }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
@@ -31,7 +32,12 @@ export default function ModalProfilePicture({
           opacity={0.3}>
           <Modal.Body className="p-0">
             {!isLoaded && (
-              <Loader color="dark" variant="bars" className="m-auto" />
+              <Loader
+                color="dark"
+                variant="bars"
+                size="sm"
+                className="m-auto"
+              />
             )}
             <motion.div
               initial={false}
@@ -41,9 +47,6 @@ export default function ModalProfilePicture({
                   duration: 0.3,
                 },
               }}>
-              {!isLoaded && (
-                <Loader color="dark" variant="bars" className="m-auto" />
-              )}
               <img
                 src={imgSrc}
                 alt="foto"

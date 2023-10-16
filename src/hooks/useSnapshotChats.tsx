@@ -35,16 +35,18 @@ export interface DataChats {
 }
 
 const useSnapshotChats = (personal_id: string) => {
-  const [chatsUpdated, setChatsUpdated] = useState<DataChats[]>();
+  const [chatsRealtime, setChatsRealtime] = useState<DataChats[]>();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(firestore, 'chats'), async () => {
+      setIsLoading(true)
       const q = query(
         collection(firestore, 'chats'),
         where('personal_id', '==', personal_id)
       );
       const snapshot = await getDocs(q);
-
+  
       const data = await Promise.all(
         snapshot.docs.map(async (field) => {
           const user_id = field.data().user_id;
@@ -62,13 +64,14 @@ const useSnapshotChats = (personal_id: string) => {
         })
       );
 
-      setChatsUpdated(data as unknown as DataChats[]);
+      setChatsRealtime(data as unknown as DataChats[]);
+      setIsLoading(false);
     });
 
     return unsubscribe;
   }, [personal_id]);
 
-  return chatsUpdated;
+  return { chatsRealtime, isLoading };
 };
 
 export default useSnapshotChats;

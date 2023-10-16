@@ -4,6 +4,7 @@ import { Variants, motion as mo } from 'framer-motion';
 import { useState } from 'react';
 import { useClickOutside } from '@mantine/hooks';
 import { DataChats } from '@/hooks/useSnapshotChats';
+import ModalEditMessage from '@/components/molecules/ModalEditMessage';
 
 type Props = {
   chat: DataChats;
@@ -19,15 +20,14 @@ export default function RightChat({ chat }: Props) {
   return (
     <mo.div initial={false} animate={isOpen ? 'open' : 'closed'}>
       <div className="flex flex-col gap-1 items-end mb-4">
-        <mo.div
-          className="p-3 text-[14px] rounded-xl bg-black text-white w-max relative cursor-pointer"
-          whileTap={{ scale: 0.9 }}
-          ref={ref}
-          onClick={() => setIsOpen(!isOpen)}>
-          <p className="whitespace-pre-line">
+        <mo.div className="relative" whileTap={{ scale: 0.9 }} ref={ref}>
+          <p
+            className="whitespace-pre-line inline-block p-3 text-[14px] rounded-xl bg-black text-white w-max cursor-pointer"
+            onClick={() => setIsOpen(!isOpen)}>
             {isMessageHide ? '•••••' : chat.message}
           </p>
           <mo.ul
+            onClick={() => setIsOpen(false)}
             variants={{
               open: {
                 clipPath: 'inset(0% 0% 0% 0% round 10px)',
@@ -48,11 +48,17 @@ export default function RightChat({ chat }: Props) {
               },
             }}
             className="absolute -left-[90px] top-0 bg-white text-black border rounded-xl p-2 w-20 text-[12px] z-10">
-            <mo.li
-              variants={itemVariants}
-              className="rounded-lg py-1 px-2 hover:bg-black hover:text-white cursor-pointer">
-              Edit
-            </mo.li>
+            <ModalEditMessage
+              id={chat.id}
+              message={chat.message}
+              time={chat.created_at}
+              isRead={chat.isRead}>
+              <mo.li
+                variants={itemVariants}
+                className="rounded-lg py-1 px-2 hover:bg-black hover:text-white cursor-pointer">
+                Edit
+              </mo.li>
+            </ModalEditMessage>
             <mo.li
               variants={itemVariants}
               className="rounded-lg py-1 px-2 hover:bg-black hover:text-white cursor-pointer"

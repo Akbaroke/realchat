@@ -4,6 +4,7 @@ import { useClickOutside } from '@mantine/hooks';
 import { Variants, motion as mo } from 'framer-motion';
 import { DataChats } from '@/hooks/useSnapshotChats';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { DEFAULT_FOTO } from '@/assets';
 
 type Props = {
   chat: DataChats;
@@ -22,10 +23,7 @@ export default function LeftChat({ chat }: Props) {
         <LazyLoadImage
           alt="foto"
           effect="blur"
-          src={
-            chat.foto ||
-            'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg'
-          }
+          src={chat.foto || DEFAULT_FOTO}
           width={30}
           height={30}
           className="rounded-lg h-max relative bottom-2"

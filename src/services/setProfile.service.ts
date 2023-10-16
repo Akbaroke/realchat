@@ -25,8 +25,6 @@ export default async function setProfileService(userData: UserType) {
         email: email,
         foto: foto,
         bio: '',
-        rooms: [],
-        grups: [],
       });
       console.log('create success');
     } catch (error) {

@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from 'uuid';
 import getFriend from '@/services/getFriend';
 import { UserType } from '@/store/slices/authSlice';
 import ModalProfilePicture from '@/components/molecules/ModalProfilePicture';
+import { DEFAULT_FOTO } from '@/assets';
 
 export default function Personal() {
   const navigate = useNavigate();
@@ -32,10 +33,10 @@ export default function Personal() {
   const [fried, setFriend] = useState<UserType>();
   const { user } = useSelector((state: RootState) => state.auth);
   const viewport = useRef<HTMLDivElement>(null);
-  const dataChats = useSnapshotChats(id || '');
-  const dataFriend = dataChats?.find((val) => val.user_id !== user?.id);
+  const { chatsRealtime, isLoading } = useSnapshotChats(id || '');
+  const dataFriend = chatsRealtime?.find((val) => val.user_id !== user?.id);
   const personal = useSelector((state: RootState) => state.personal);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingBtn, setIsLoadingBtn] = useState(false);
 
   useEffect(() => {
     if (!!dataFriend || personal.name === '') {
@@ -48,17 +49,17 @@ export default function Personal() {
       top: viewport.current.scrollHeight,
       behavior: 'smooth',
     });
-    if (dataChats && user?.id) {
-      updateReadChat(dataChats, user?.id || '');
+    if (chatsRealtime && user?.id) {
+      updateReadChat(chatsRealtime, user?.id || '');
     }
-  }, [dataChats, personal, user?.id]);
+  }, [chatsRealtime, personal, user?.id]);
 
   const handleSendMessage = () => {
     const chat_id = uuidv4();
     if (textChat.trim() === '') {
       return;
     }
-    if (dataChats?.length === 0) {
+    if (chatsRealtime?.length === 0) {
       const dataPersonal: DataNewPersonal = {
         lastMessage: doc(firestore, 'chats', chat_id),
         personal_id: id || '',
@@ -66,7 +67,7 @@ export default function Personal() {
       };
       createPersonal(dataPersonal);
     }
-    setIsLoading(true);
+    setIsLoadingBtn(true);
     const data: DataMessage = {
       id: chat_id,
       personal_id: id || '',
@@ -75,7 +76,7 @@ export default function Personal() {
     };
     setTextChat('');
     sendMessage(data).finally(() => {
-      setIsLoading(false);
+      setIsLoadingBtn(false);
     });
   };
 
@@ -97,7 +98,7 @@ export default function Personal() {
 
   // Mengurutkan pesan chat berdasarkan tanggal terbaru
   const sortedMessages =
-    dataChats?.sort((a, b) => a.created_at - b.created_at) || [];
+    chatsRealtime?.sort((a, b) => a.created_at - b.created_at) || [];
 
   // Memisahkan pesan chat berdasarkan tanggal
   const messagesByDay: Record<number, typeof sortedMessages> = {};
@@ -112,11 +113,7 @@ export default function Personal() {
     messagesByDay[messageDayTimestamp].push(message);
   });
 
-  const foto =
-    dataFriend?.foto ||
-    personal.foto ||
-    fried?.foto ||
-    'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
+  const foto = dataFriend?.foto || personal.foto || fried?.foto || DEFAULT_FOTO;
 
   return (
     <div className="h-screen flex flex-col justify-between">
@@ -180,6 +177,9 @@ export default function Personal() {
             </div>
           );
         })}
+        {isLoading && (
+          <Loader color="dark" size="sm" variant="dots" className="m-auto" />
+        )}
       </ScrollArea>
       <div className="h-max border-t flex flex-col gap-6 p-5">
         <InputChat
@@ -206,12 +206,12 @@ export default function Personal() {
           </div>
           <button
             className={cn('font-semibold cursor-pointer', {
-              'cursor-not-allowed': isLoading,
+              'cursor-not-allowed': isLoadingBtn,
               'text-gray-500': textChat.trim() === '',
             })}
-            disabled={isLoading}
+            disabled={isLoadingBtn}
             onClick={handleSendMessage}>
-            {isLoading ? (
+            {isLoadingBtn ? (
               <Loader color="dark" size="xs" variant="oval" />
             ) : (
               'Send'

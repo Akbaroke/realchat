@@ -8,16 +8,22 @@ import {
   getDoc,
   doc,
   getDocs,
+  query,
+  where,
 } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
 const useSnapshotPersonal = (id: string) => {
   const [personalRealtime, setPersonalRealtime] = useState<ListRooms[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const personalCollection = collection(firestore, 'personal');
+    const personalCollection = query(
+      collection(firestore, 'personal'),
+      where('users_id', 'array-contains', id)
+    );
     const chatsCollection = collection(firestore, 'chats');
+    const usersCollection = collection(firestore, 'users');
 
     const fetchData = async () => {
       setIsLoading(true);
@@ -61,10 +67,12 @@ const useSnapshotPersonal = (id: string) => {
 
     const personalUnsubscribe = onSnapshot(personalCollection, fetchData);
     const chatsUnsubscribe = onSnapshot(chatsCollection, fetchData);
+    const usersUnsubscribe = onSnapshot(usersCollection, fetchData);
 
     return () => {
       personalUnsubscribe();
       chatsUnsubscribe();
+      usersUnsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
