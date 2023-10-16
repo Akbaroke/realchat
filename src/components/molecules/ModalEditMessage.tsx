@@ -15,6 +15,7 @@ type Props = {
   time: number;
   isRead: boolean;
   children: React.ReactNode;
+  isDisabled?: boolean;
 };
 
 export default function ModalEditMessage({
@@ -23,6 +24,7 @@ export default function ModalEditMessage({
   message,
   time,
   isRead,
+  isDisabled,
 }: Props) {
   const [textChat, setTextChat] = useState(message);
   const [isLoadingBtn, setIsLoadingBtn] = useState(false);
@@ -41,7 +43,7 @@ export default function ModalEditMessage({
   const MessagePreview = () => (
     <div className="flex flex-col gap-1 items-end mb-4">
       <div className="relative">
-        <p className="whitespace-pre-line inline-block p-3 text-[14px] rounded-xl bg-black text-white w-max cursor-pointer">
+        <p className="whitespace-pre-line inline-block p-3 text-[14px] rounded-xl bg-black text-white cursor-pointer sm:max-w-[300px] max-w-[200px] break-words">
           {message}
         </p>
       </div>
@@ -58,9 +60,10 @@ export default function ModalEditMessage({
 
   const handleUpdateMessage = () => {
     setIsLoadingBtn(true);
-    updateMessage(id, textChat);
-    setIsLoadingBtn(false);
-    close();
+    updateMessage(id, textChat).finally(() => {
+      setIsLoadingBtn(false);
+      close();
+    });
   };
 
   return (
@@ -104,11 +107,11 @@ export default function ModalEditMessage({
                     className="flex-1"
                   />
                   <button
-                    className={cn('font-semibold cursor-pointer', {
+                    className={cn('font-semibold cursor-pointer text-[14px]', {
                       'cursor-not-allowed': isLoadingBtn || !isChanged,
                       'text-gray-500': !isChanged,
                     })}
-                    disabled={isLoadingBtn || !isChanged}
+                    disabled={isLoadingBtn || !isChanged || isDisabled}
                     onClick={handleUpdateMessage}>
                     {isLoadingBtn ? (
                       <Loader color="dark" size="xs" variant="oval" />
@@ -123,7 +126,7 @@ export default function ModalEditMessage({
         </Modal.Content>
       </Modal.Root>
 
-      <div onClick={open} className="cursor-pointer">
+      <div onClick={isDisabled ? () => null : open} className="cursor-pointer">
         {children}
       </div>
     </>

@@ -132,7 +132,7 @@ export default function Personal() {
                 src={foto}
                 width={30}
                 height={30}
-                className="rounded-lg"
+                className="rounded-lg bg-gray-200"
               />
             </ModalProfilePicture>
             <h1 className="font-medium pb-1">
@@ -178,7 +178,12 @@ export default function Personal() {
           );
         })}
         {isLoading && (
-          <Loader color="dark" size="sm" variant="dots" className="m-auto" />
+          <Loader
+            color="dark"
+            size="sm"
+            variant="dots"
+            className="my-10 m-auto"
+          />
         )}
       </ScrollArea>
       <div className="h-max border-t flex flex-col gap-6 p-5">
@@ -207,9 +212,9 @@ export default function Personal() {
           <button
             className={cn('font-semibold cursor-pointer', {
               'cursor-not-allowed': isLoadingBtn,
-              'text-gray-500': textChat.trim() === '',
+              'text-gray-500 cursor-not-allowed': textChat.trim() === '',
             })}
-            disabled={isLoadingBtn}
+            disabled={isLoadingBtn || textChat.trim() === ''}
             onClick={handleSendMessage}>
             {isLoadingBtn ? (
               <Loader color="dark" size="xs" variant="oval" />

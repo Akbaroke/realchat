@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { setPersonal } from '@/store/slices/personalSlice';
 import { DEFAULT_FOTO } from '@/assets';
+import { GrFormEdit } from 'react-icons/gr';
+import isDeletedMe from '@/utils/isDeletedMe';
 
 type Props = {
   room: ListRooms;
@@ -43,37 +45,55 @@ export default function CardRoom({ room }: Props) {
         width={50}
         height={50}
         src={users?.foto || DEFAULT_FOTO}
-        className="rounded-lg"
+        className="rounded-lg bg-gray-200"
       />
       <div className="grid grid-cols-3 w-full">
         <div className="flex flex-col col-span-2">
           <h1 className="text-[15px] font-medium">{users?.name}</h1>
-          <p
-            className={cn(
-              'whitespace-nowrap w-full text-[13px] overflow-hidden overflow-ellipsis',
-              {
-                'text-gray-400': room.countUnread === 0,
-              }
-            )}>
-            {room?.lastMessage?.message}
-          </p>
+          <div className="flex items-center justify-start w-full">
+            <p
+              className={cn(
+                'whitespace-nowrap text-[13px] overflow-hidden overflow-ellipsis w-max flex-1',
+                {
+                  'text-gray-400': room?.countUnread === 0,
+                }
+              )}>
+              {room?.lastMessage?.deleted_at ? (
+                <i className="font-light">Message has been deleted</i>
+              ) : !isDeletedMe({
+                  deletedUs_userid: room?.lastMessage?.isDeletedUs || [],
+                  user_id: user?.id || '',
+                }) ? (
+                room?.lastMessage?.isHide ? (
+                  '•••••'
+                ) : (
+                  room?.lastMessage?.message
+                )
+              ) : (
+                <i className="font-light">Message has been deleted for me</i>
+              )}
+            </p>
+          </div>
         </div>
         <div className="flex flex-col items-end gap-1">
           <TimeDisplay
             time={room?.lastMessage?.updated_at}
             className="text-[13px] font-medium"
           />
-          {room?.lastMessage?.user_id === users?.id ? (
-            room?.countUnread > 0 && (
-              <span className="text-[12px] font-medium bg-black text-white py-[4px] px-[5px] leading-3 rounded-full">
-                {room?.countUnread}
-              </span>
-            )
-          ) : room?.lastMessage?.isRead ? (
-            <BsCheckAll size={18} />
-          ) : (
-            <BsCheck size={18} />
-          )}
+          <div className="flex items-center gap-1">
+            {room?.lastMessage?.isEdit && <GrFormEdit size={16} />}
+            {room?.lastMessage?.user_id === users?.id ? (
+              room?.countUnread > 0 && (
+                <span className="text-[12px] font-medium bg-black text-white py-[4px] px-[5px] leading-3 rounded-full">
+                  {room?.countUnread}
+                </span>
+              )
+            ) : room?.lastMessage.isRead ? (
+              <BsCheckAll size={18} />
+            ) : (
+              <BsCheck size={18} />
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -29,6 +29,7 @@ export interface DataChats {
   isRead: boolean;
   isHide: boolean;
   isEdit: boolean;
+  isDeletedUs: string[];
   deleted_at: number;
   updated_at: number;
   created_at: number;
