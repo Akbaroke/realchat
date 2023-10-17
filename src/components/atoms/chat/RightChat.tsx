@@ -1,9 +1,9 @@
 import TimeDisplay from '../TimeDisplay';
-import { BsCheckAll, BsCheck } from 'react-icons/bs';
+import { BsCheckAll, BsCheck, BsThreeDotsVertical } from 'react-icons/bs';
 import { GrFormEdit } from 'react-icons/gr';
 import { Variants, motion as mo } from 'framer-motion';
 import { useState } from 'react';
-import { useClickOutside } from '@mantine/hooks';
+import { useClickOutside, useHover } from '@mantine/hooks';
 import { DataChats } from '@/hooks/useSnapshotChats';
 import ModalEditMessage from '@/components/molecules/ModalEditMessage';
 import hideShowMessage from '@/services/hideShowMessage';
@@ -13,6 +13,8 @@ import { RootState } from '@/store';
 import isDeletedMe from '@/utils/isDeletedMe';
 import cn from '@/utils/cn';
 import { CopyButton } from '@mantine/core';
+import { Image } from 'primereact/image';
+import { MdOutlineDoNotDisturbAlt } from 'react-icons/md';
 
 type Props = {
   chat: DataChats;
@@ -22,7 +24,8 @@ export default function RightChat({ chat }: Props) {
   const { user } = useSelector((state: RootState) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
   const [isMessageHide, setIsMessageHide] = useState(chat.isHide);
-  const ref = useClickOutside(() => setIsOpen(false));
+  const clickRef = useClickOutside(() => setIsOpen(false));
+  const { hovered, ref } = useHover();
 
   const toggleHideShowMessage = () => {
     setIsMessageHide(!isMessageHide);
@@ -53,22 +56,56 @@ export default function RightChat({ chat }: Props) {
       user_id: user?.id || '',
     }) && (
       <mo.div initial={false} animate={isOpen ? 'open' : 'closed'}>
-        <div className="flex flex-col gap-1 items-end mb-4">
-          <mo.div className="relative" ref={ref}>
-            <mo.p
-              whileTap={{ scale: 0.9 }}
-              className="whitespace-pre-line inline-block p-3 text-[14px] rounded-xl bg-black text-white cursor-pointer sm:max-w-[300px] max-w-[250px] break-words"
-              onClick={() => setIsOpen(!isOpen)}>
+        <div className="flex flex-col gap-1 items-end mb-4" ref={ref}>
+          <mo.div className="relative" ref={clickRef}>
+            <div className="rounded-xl bg-black sm:max-w-[300px] max-w-[220px]">
+              <mo.div
+                animate={{ opacity: hovered ? 1 : 0 }}
+                whileTap={{ scale: 0.5 }}
+                className="absolute -left-5 top-4 text-black cursor-pointer"
+                onClick={() => setIsOpen(!isOpen)}>
+                <BsThreeDotsVertical size={16} />
+              </mo.div>
+
               {!chat?.deleted_at ? (
-                isMessageHide ? (
-                  '•••••'
-                ) : (
-                  chat.message
-                )
+                <>
+                  <>
+                    {!isMessageHide && chat.content?.type === 'picture' && (
+                      <div
+                        className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
+                        <Image
+                          src={chat.content.data as string}
+                          alt="image"
+                          width="300"
+                          className="rounded-lg overflow-hidden"
+                          preview
+                        />
+                      </div>
+                    )}
+                  </>
+                  {chat.message && (
+                    <p
+                      className={cn(
+                        'text-white sm:max-w-[300px] max-w-[250px] break-words whitespace-pre-line inline-block text-[14px]',
+                        chat.message
+                          ? chat.content?.type === 'picture'
+                            ? isMessageHide
+                              ? 'p-3'
+                              : 'px-3 pb-3'
+                            : 'p-3'
+                          : ''
+                      )}>
+                      {isMessageHide ? '•••••' : chat.message}
+                    </p>
+                  )}
+                </>
               ) : (
-                <i className="font-light">Message has been deleted</i>
+                <p className="font-light p-3 text-gray-300 italic inline-flex gap-1 items-center sm:text-[14px] text-[12px]">
+                  <MdOutlineDoNotDisturbAlt size={18} />
+                  Message has been deleted
+                </p>
               )}
-            </mo.p>
+            </div>
             <mo.ul
               onClick={() => setIsOpen(false)}
               variants={{
@@ -91,21 +128,23 @@ export default function RightChat({ chat }: Props) {
                 },
               }}
               className="absolute -left-[90px] top-0 bg-white text-black border rounded-xl p-2 w-20 text-[12px] z-10">
-              <CopyButton value={chat.message}>
-                {({ copied, copy }) => (
-                  <mo.li
-                    variants={itemVariants}
-                    onClick={chat?.deleted_at ? () => {} : copy}
-                    className={cn(
-                      'rounded-lg py-1 px-2 cursor-pointer',
-                      chat?.deleted_at
-                        ? 'cursor-not-allowed text-gray-300'
-                        : 'hover:bg-black hover:text-white'
-                    )}>
-                    {copied ? 'Copied' : 'Copy'}
-                  </mo.li>
-                )}
-              </CopyButton>
+              {chat.message !== '' && (
+                <CopyButton value={chat.message}>
+                  {({ copied, copy }) => (
+                    <mo.li
+                      variants={itemVariants}
+                      onClick={chat?.deleted_at ? () => {} : copy}
+                      className={cn(
+                        'rounded-lg py-1 px-2 cursor-pointer',
+                        chat?.deleted_at
+                          ? 'cursor-not-allowed text-gray-300'
+                          : 'hover:bg-black hover:text-white'
+                      )}>
+                      {copied ? 'Copied' : 'Copy'}
+                    </mo.li>
+                  )}
+                </CopyButton>
+              )}
               <mo.li
                 variants={itemVariants}
                 className={cn(
@@ -149,6 +188,7 @@ export default function RightChat({ chat }: Props) {
                 </mo.li>
               </ModalEditMessage>
               <ModalDeleteMessage
+                personal_id={chat.personal_id}
                 id={chat.id}
                 message={chat.message}
                 time={chat.created_at}

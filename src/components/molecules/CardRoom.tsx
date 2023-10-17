@@ -10,6 +10,7 @@ import { setPersonal } from '@/store/slices/personalSlice';
 import { DEFAULT_FOTO } from '@/assets';
 import { GrFormEdit } from 'react-icons/gr';
 import isDeletedMe from '@/utils/isDeletedMe';
+import { LuImage } from 'react-icons/lu';
 
 type Props = {
   room: ListRooms;
@@ -50,7 +51,15 @@ export default function CardRoom({ room }: Props) {
       <div className="grid grid-cols-3 w-full">
         <div className="flex flex-col col-span-2">
           <h1 className="text-[15px] font-medium">{users?.name}</h1>
-          <div className="flex items-center justify-start w-full">
+          <div className="flex items-center justify-start w-full gap-1">
+            {room.lastMessage.content?.type === 'picture' && (
+              <LuImage
+                size={13}
+                className={cn({
+                  'text-gray-400': room?.countUnread === 0,
+                })}
+              />
+            )}
             <p
               className={cn(
                 'whitespace-nowrap text-[13px] overflow-hidden overflow-ellipsis w-max flex-1',
@@ -66,6 +75,11 @@ export default function CardRoom({ room }: Props) {
                 }) ? (
                 room?.lastMessage?.isHide ? (
                   '•••••'
+                ) : room?.lastMessage?.content &&
+                  room?.lastMessage?.message === '' ? (
+                  <i className="font-light capitalize">
+                    {room?.lastMessage?.content?.type}
+                  </i>
                 ) : (
                   room?.lastMessage?.message
                 )

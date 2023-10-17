@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 
 type Props = {
+  personal_id: string;
   id: string;
   message: string;
   time: number;
@@ -21,6 +22,7 @@ type Props = {
 };
 
 export default function ModalDeleteMessage({
+  personal_id,
   id,
   children,
   message,
@@ -82,6 +84,7 @@ export default function ModalDeleteMessage({
   const handleDeleteMessage = (deletedType: DeletedType) => {
     setIsLoading(true);
     deleteMessage({
+      personal_id: personal_id,
       message_id: id,
       user_id: user?.id || '',
       type: deletedType,

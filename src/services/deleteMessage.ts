@@ -1,15 +1,18 @@
-import { firestore } from '@/config/firebase';
+import { firestore, storage } from '@/config/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { deleteObject, ref } from 'firebase/storage';
 
 export type DeletedType = 'everyone' | 'me';
 
 type Props = {
+  personal_id: string;
   message_id: string;
   user_id: string;
   type: DeletedType;
 };
 
 export default async function deleteMessage({
+  personal_id,
   message_id,
   user_id,
   type,
@@ -25,6 +28,9 @@ export default async function deleteMessage({
         isDeletedUs: [...deletedUs_userid, user_id],
       });
     } else {
+      await deleteObject(
+        ref(storage, `personal/${personal_id}/${message_id}.jpg`)
+      );
       await updateDoc(chatsRef, {
         ...chatsData.data(),
         deleted_at: time,

@@ -31,7 +31,9 @@ export default function Button({
           'bg-black text-white ': variant === 'fill',
           'bg-white text-black border border-gray-200': variant === 'outline',
           'cursor-not-allowed hover:shadow-none bg-black/80':
-            isDisabled || isLoading,
+            (isDisabled || isLoading) && variant === 'fill',
+          'cursor-not-allowed hover:shadow-none text-gray-300':
+            (isDisabled || isLoading) && variant === 'outline',
         },
         className
       )}>

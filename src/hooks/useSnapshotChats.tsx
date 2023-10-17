@@ -11,16 +11,19 @@ import {
 } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
+export interface Content {
+  type: 'picture' | 'coding' | 'openai';
+  data: File | string;
+}
+
 export interface DataChats {
   id: string;
+  personal_id: string;
   user_id: string;
   name: string;
   foto?: string;
   message: string;
-  content?: {
-    type: 'picture' | 'coding' | 'openai';
-    data: File | string;
-  };
+  content?: Content;
   reply?: {
     id: string;
     name: string;

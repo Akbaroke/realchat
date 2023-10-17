@@ -33,7 +33,7 @@ export default function ModalEditMessage({
   const theme = useMantineTheme();
 
   useEffect(() => {
-    if (textChat.trim() !== message) {
+    if (textChat.trim() !== message && textChat.trim() !== '') {
       setIsChanged(true);
     } else {
       setIsChanged(false);

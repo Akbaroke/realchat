@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiChevronLeft } from 'react-icons/fi';
-import { LuImage } from 'react-icons/lu';
+import { FiChevronLeft, FiRefreshCcw } from 'react-icons/fi';
 import { BiCodeAlt } from 'react-icons/bi';
+import { HiOutlineTrash } from 'react-icons/hi';
 import { RiOpenaiFill } from 'react-icons/ri';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { Loader, ScrollArea } from '@mantine/core';
@@ -12,7 +12,7 @@ import TooltipComp from '@/components/atoms/TooltipComp';
 import BallonChat from '@/components/atoms/chat/BallonChat';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import useSnapshotChats from '@/hooks/useSnapshotChats';
+import useSnapshotChats, { Content } from '@/hooks/useSnapshotChats';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import updateReadChat from '@/services/updateReadChat';
 import sendMessage, { DataMessage } from '@/services/sendMessage';
@@ -25,6 +25,11 @@ import getFriend from '@/services/getFriend';
 import { UserType } from '@/store/slices/authSlice';
 import ModalProfilePicture from '@/components/molecules/ModalProfilePicture';
 import { DEFAULT_FOTO } from '@/assets';
+import ButtonInputImage, {
+  ImageType,
+} from '@/components/atoms/ButtonInputImage';
+import { Image } from 'primereact/image';
+import uploadImage from '@/services/uploadImage';
 
 export default function Personal() {
   const navigate = useNavigate();
@@ -37,12 +42,26 @@ export default function Personal() {
   const dataFriend = chatsRealtime?.find((val) => val.user_id !== user?.id);
   const personal = useSelector((state: RootState) => state.personal);
   const [isLoadingBtn, setIsLoadingBtn] = useState(false);
+  const [image, setImage] = useState<ImageType | null>(null);
+  const openRef = useRef<VoidFunction>(() => {});
+  const [content, setContent] = useState<Content | null>(null);
 
   useEffect(() => {
     if (!!dataFriend || personal.name === '') {
       getFriend(id || '', user?.id || '').then((res) => setFriend(res));
     }
   }, [dataFriend, id, personal, user?.id]);
+
+  useEffect(() => {
+    if (image) {
+      setContent({
+        type: 'picture',
+        data: image.imageFile,
+      });
+    } else {
+      setContent(null);
+    }
+  }, [image]);
 
   useEffect(() => {
     viewport?.current?.scrollTo({
@@ -53,32 +72,6 @@ export default function Personal() {
       updateReadChat(chatsRealtime, user?.id || '');
     }
   }, [chatsRealtime, personal, user?.id]);
-
-  const handleSendMessage = () => {
-    const chat_id = uuidv4();
-    if (textChat.trim() === '') {
-      return;
-    }
-    if (chatsRealtime?.length === 0) {
-      const dataPersonal: DataNewPersonal = {
-        lastMessage: doc(firestore, 'chats', chat_id),
-        personal_id: id || '',
-        users_id: [user?.id || '', fried?.id || personal.user_id || ''],
-      };
-      createPersonal(dataPersonal);
-    }
-    setIsLoadingBtn(true);
-    const data: DataMessage = {
-      id: chat_id,
-      personal_id: id || '',
-      user_id: user?.id || '',
-      message: textChat,
-    };
-    setTextChat('');
-    sendMessage(data).finally(() => {
-      setIsLoadingBtn(false);
-    });
-  };
 
   // Mengambil timestamp untuk hari ini
   const today = new Date();
@@ -114,6 +107,56 @@ export default function Personal() {
   });
 
   const foto = dataFriend?.foto || personal.foto || fried?.foto || DEFAULT_FOTO;
+  const isDisableSend =
+    isLoadingBtn || textChat.trim() === ''
+      ? image !== null
+        ? false
+        : true
+      : false || isLoading;
+
+  const handleSendMessage = async () => {
+    const chat_id = uuidv4();
+    if (isDisableSend) {
+      return;
+    }
+    setIsLoadingBtn(true);
+    const upload = await uploadImage(
+      `personal/${id}/${chat_id}.jpg`,
+      image?.imageFile as File
+    );
+
+    if (chatsRealtime?.length === 0) {
+      const dataPersonal: DataNewPersonal = {
+        lastMessage: doc(firestore, 'chats', chat_id),
+        personal_id: id || '',
+        users_id: [user?.id || '', fried?.id || personal.user_id || ''],
+      };
+      createPersonal(dataPersonal);
+    }
+    const data1: DataMessage = {
+      id: chat_id,
+      personal_id: id || '',
+      user_id: user?.id || '',
+      message: textChat,
+    };
+    const data2: DataMessage = {
+      id: chat_id,
+      personal_id: id || '',
+      user_id: user?.id || '',
+      message: textChat,
+      content: content
+        ? {
+            type: content?.type,
+            data: upload,
+          }
+        : undefined,
+    };
+    sendMessage(content ? data2 : data1).finally(() => {
+      setIsLoadingBtn(false);
+    });
+    setTextChat('');
+    setImage(null);
+  };
 
   return (
     <div className="h-screen flex flex-col justify-between">
@@ -125,11 +168,11 @@ export default function Personal() {
             <FiChevronLeft size={16} />
           </div>
           <div className="flex items-center gap-2">
-            <ModalProfilePicture imgSrc={foto}>
+            <ModalProfilePicture imgSrc={foto || DEFAULT_FOTO}>
               <LazyLoadImage
                 alt="foto"
                 effect="blur"
-                src={foto}
+                src={foto || DEFAULT_FOTO}
                 width={30}
                 height={30}
                 className="rounded-lg bg-gray-200"
@@ -143,7 +186,10 @@ export default function Personal() {
         <BsThreeDotsVertical size={16} />
       </div>
       <ScrollArea
-        className="flex-1 px-5 [&>div>div>div:first-child]:pt-5"
+        type="scroll"
+        scrollbarSize={6}
+        offsetScrollbars
+        className="flex-1 px-5 [&>div>div>div:first-child]:pt-5 h-max"
         viewportRef={viewport}>
         {Object.entries(messagesByDay).map(([timestamp, messages]) => {
           const messageDay = new Date(Number(timestamp));
@@ -187,6 +233,34 @@ export default function Personal() {
         )}
       </ScrollArea>
       <div className="h-max border-t flex flex-col gap-6 p-5">
+        {image && (
+          <div className="flex items-start gap-2">
+            <Image
+              src={image?.imageBlob}
+              alt="image"
+              className="w-[150px] max-h-[200px] rounded-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 hover:scale-105"
+              preview
+            />
+            <div className="flex flex-col gap-2">
+              <TooltipComp label="Delete">
+                <Button
+                  variant="outline"
+                  className="w-max text-red-600"
+                  onClick={() => setImage(null)}>
+                  <HiOutlineTrash size={20} />
+                </Button>
+              </TooltipComp>
+              <TooltipComp label="Change">
+                <Button
+                  variant="outline"
+                  className="w-max"
+                  onClick={() => openRef.current()}>
+                  <FiRefreshCcw size={20} />
+                </Button>
+              </TooltipComp>
+            </div>
+          </div>
+        )}
         <InputChat
           value={textChat}
           onChange={(e) => setTextChat(e.target.value)}
@@ -194,27 +268,34 @@ export default function Personal() {
         <div className="flex justify-between">
           <div className="flex gap-3">
             <TooltipComp label="Picture">
-              <Button variant="outline" className="w-max">
-                <LuImage size={20} />
-              </Button>
+              <ButtonInputImage
+                setImage={setImage}
+                openRef={openRef as unknown as VoidFunction}
+                isDisabled={content?.type !== 'picture' && !!content?.type}
+              />
             </TooltipComp>
             <TooltipComp label="Coding">
-              <Button variant="outline" className="w-max">
+              <Button
+                variant="outline"
+                className="w-max"
+                isDisabled={content?.type !== 'coding' && !!content?.type}>
                 <BiCodeAlt size={20} />
               </Button>
             </TooltipComp>
             <TooltipComp label="OpenAi">
-              <Button variant="outline" className="w-max">
+              <Button
+                variant="outline"
+                className="w-max"
+                isDisabled={content?.type !== 'openai' && !!content?.type}>
                 <RiOpenaiFill size={20} />
               </Button>
             </TooltipComp>
           </div>
           <button
             className={cn('font-semibold cursor-pointer', {
-              'cursor-not-allowed': isLoadingBtn,
-              'text-gray-500 cursor-not-allowed': textChat.trim() === '',
+              'text-gray-500 cursor-not-allowed': isDisableSend,
             })}
-            disabled={isLoadingBtn || textChat.trim() === ''}
+            disabled={isDisableSend}
             onClick={handleSendMessage}>
             {isLoadingBtn ? (
               <Loader color="dark" size="xs" variant="oval" />

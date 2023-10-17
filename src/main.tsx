@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import { Toaster } from 'sonner';
 import Container from './components/templates/Container.tsx';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
