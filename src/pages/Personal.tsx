@@ -23,13 +23,14 @@ import { firestore } from '@/config/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import getFriend from '@/services/getFriend';
 import { UserType } from '@/store/slices/authSlice';
-import ModalProfilePicture from '@/components/molecules/ModalProfilePicture';
+import ModalProfilePicture from '@/components/organisms/ModalProfilePicture';
 import { DEFAULT_FOTO } from '@/assets';
 import ButtonInputImage, {
   ImageType,
 } from '@/components/atoms/ButtonInputImage';
 import { Image } from 'primereact/image';
 import uploadImage from '@/services/uploadImage';
+import ModalGenerateOpenAi from '@/components/organisms/ModalGenerateOpenAi';
 
 export default function Personal() {
   const navigate = useNavigate();
@@ -301,15 +302,17 @@ export default function Personal() {
               </Button>
             </TooltipComp>
             <TooltipComp label="OpenAi">
-              <Button
-                variant="outline"
-                className="w-max"
-                isDisabled={
-                  (content?.type !== 'openai' && !!content?.type) ||
-                  isLoadingBtn
-                }>
-                <RiOpenaiFill size={20} />
-              </Button>
+              <ModalGenerateOpenAi>
+                <Button
+                  variant="outline"
+                  className="w-max"
+                  isDisabled={
+                    (content?.type !== 'openai' && !!content?.type) ||
+                    isLoadingBtn
+                  }>
+                  <RiOpenaiFill size={20} />
+                </Button>
+              </ModalGenerateOpenAi>
             </TooltipComp>
           </div>
           <button

@@ -8,7 +8,7 @@ import { DEFAULT_FOTO } from '@/assets';
 import { GrFormEdit } from 'react-icons/gr';
 import { CopyButton } from '@mantine/core';
 import cn from '@/utils/cn';
-import ModalDeleteMessage from '@/components/molecules/ModalDeleteMessage';
+import ModalDeleteMessage from '@/components/organisms/ModalDeleteMessage';
 import { MdOutlineDoNotDisturbAlt } from 'react-icons/md';
 import isDeletedMe from '@/utils/isDeletedMe';
 import { useSelector } from 'react-redux';

@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
-import ModalProfilePicture from '@/components/molecules/ModalProfilePicture';
+import ModalProfilePicture from '@/components/organisms/ModalProfilePicture';
 import updateProfile from '@/services/updateProfile';
 import { useEffect, useState } from 'react';
 import { DEFAULT_FOTO } from '@/assets';
