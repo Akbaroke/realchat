@@ -58,7 +58,7 @@ export default function ModalProfilePicture({
         </Modal.Content>
       </Modal.Root>
 
-      <div onClick={open} className="cursor-pointer">
+      <div onClick={open} className="cursor-pointer grid place-items-center">
         {children}
       </div>
     </>

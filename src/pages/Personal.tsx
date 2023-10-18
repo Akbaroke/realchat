@@ -167,7 +167,7 @@ export default function Personal() {
             onClick={() => navigate('/')}>
             <FiChevronLeft size={16} />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <ModalProfilePicture imgSrc={foto || DEFAULT_FOTO}>
               <LazyLoadImage
                 alt="foto"
@@ -178,9 +178,14 @@ export default function Personal() {
                 className="rounded-lg bg-gray-200"
               />
             </ModalProfilePicture>
-            <h1 className="font-medium pb-1">
-              {dataFriend?.name || personal.name || fried?.name}
-            </h1>
+            <div className="flex flex-col">
+              <h1 className="font-medium whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[150px]">
+                {dataFriend?.name || personal.name || fried?.name}
+              </h1>
+              <p className="whitespace-nowrap text-[12px] overflow-hidden overflow-ellipsis max-w-[160px] sm:max-w-[200px]">
+                {dataFriend?.bio}
+              </p>
+            </div>
           </div>
         </div>
         <BsThreeDotsVertical size={16} />
@@ -280,7 +285,7 @@ export default function Personal() {
                 openRef={openRef as unknown as VoidFunction}
                 isDisabled={
                   (content?.type !== 'picture' && !!content?.type) ||
-                  !isDisableSend
+                  isLoadingBtn
                 }
               />
             </TooltipComp>
@@ -290,7 +295,7 @@ export default function Personal() {
                 className="w-max"
                 isDisabled={
                   (content?.type !== 'coding' && !!content?.type) ||
-                  !isDisableSend
+                  isLoadingBtn
                 }>
                 <BiCodeAlt size={20} />
               </Button>
@@ -301,7 +306,7 @@ export default function Personal() {
                 className="w-max"
                 isDisabled={
                   (content?.type !== 'openai' && !!content?.type) ||
-                  !isDisableSend
+                  isLoadingBtn
                 }>
                 <RiOpenaiFill size={20} />
               </Button>

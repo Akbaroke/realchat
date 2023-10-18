@@ -22,18 +22,25 @@ export default function PersonalView() {
   const { personalRealtime, isLoading } = useSnapshotPersonal(user?.id || '');
 
   const filterRooms = (rooms: ListRooms[], searchValue: string) => {
-    return rooms?.filter((room) => {
-      const otherUser = room?.users?.find((value) => value?.id !== user?.id);
-      const userMatch = otherUser?.name
-        .toLowerCase()
-        .includes(searchValue.toLowerCase());
-
-      const messageMatch = room?.lastMessage?.message
-        .toLowerCase()
-        .includes(searchValue.toLowerCase());
-
-      return userMatch || messageMatch;
-    });
+    return rooms
+      ?.filter((room) => {
+        const otherUser = room?.users?.find((value) => value?.id !== user?.id);
+        const userMatch = otherUser?.name
+          .toLowerCase()
+          .includes(searchValue.toLowerCase());
+        const messageMatch = room?.lastMessage?.message
+          .toLowerCase()
+          .includes(searchValue.toLowerCase());
+        return userMatch || messageMatch;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.lastMessage.updated_at);
+        const dateB = new Date(b.lastMessage.updated_at);
+        if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+          return dateB.getTime() - dateA.getTime();
+        }
+        return 0;
+      });
   };
 
   const filteredRooms = filterRooms(personalRealtime, searchValue);

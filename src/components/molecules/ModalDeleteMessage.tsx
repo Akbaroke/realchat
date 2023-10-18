@@ -4,33 +4,26 @@ import { motion } from 'framer-motion';
 import TimeDisplay from '../atoms/TimeDisplay';
 import { BsCheck, BsCheckAll } from 'react-icons/bs';
 import { useState } from 'react';
-import { FiChevronLeft } from 'react-icons/fi';
 import deleteMessage, { DeletedType } from '@/services/deleteMessage';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { DataChats } from '@/hooks/useSnapshotChats';
+import { MdOutlineDoNotDisturbAlt } from 'react-icons/md';
+import { Image } from 'primereact/image';
+import cn from '@/utils/cn';
+import { DEFAULT_FOTO } from '@/assets';
+import { RxCross2 } from 'react-icons/rx';
 
 type Props = {
-  personal_id: string;
-  id: string;
-  message: string;
-  time: number;
-  isRead: boolean;
-  children: React.ReactNode;
-  deleted_at: number;
+  chat: DataChats;
   isChatFriend?: boolean;
-  isHide: boolean;
+  children: React.ReactNode;
 };
 
 export default function ModalDeleteMessage({
-  personal_id,
-  id,
-  children,
-  message,
-  time,
-  isRead,
-  deleted_at,
   isChatFriend,
-  isHide,
+  children,
+  chat,
 }: Props) {
   const { user } = useSelector((state: RootState) => state.auth);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +31,7 @@ export default function ModalDeleteMessage({
   const theme = useMantineTheme();
 
   const isDeleteble = (): boolean => {
-    const chatCreatedAt = time;
+    const chatCreatedAt = chat.created_at;
     const currentTimeSeconds = Math.floor(new Date().getTime() / 1000.0);
     const threeDayInSeconds = 3 * 24 * 60 * 60; // 3 hari dalam detik
     const waktuEditeble = chatCreatedAt + threeDayInSeconds;
@@ -48,35 +41,120 @@ export default function ModalDeleteMessage({
 
   const MessagePreview = () =>
     isChatFriend ? (
-      <div className="flex flex-col gap-1">
-        <div className="p-3 text-[14px] border rounded-xl bg-white w-max relative cursor-pointer">
-          <p className="whitespace-pre-line sm:max-w-[300px] max-w-[250px] break-words">
-            {!deleted_at ? (
-              isHide ? (
-                '•••••'
+      <div className="flex items-end gap-2 mb-4 w-full">
+        <img
+          alt="foto"
+          src={chat.foto || DEFAULT_FOTO}
+          width={30}
+          height={30}
+          className="rounded-lg h-max relative bottom-2 bg-gray-200"
+        />
+        <div className="flex flex-col gap-1">
+          <div className="text-[14px] border rounded-xl bg-white w-max relative sm:max-w-[300px] max-w-[250px]">
+            <div className="rounded-xl sm:max-w-[300px] max-w-[220px]">
+              {!chat?.deleted_at ? (
+                <>
+                  <>
+                    {!chat.isHide && chat.content?.type === 'picture' && (
+                      <div
+                        className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
+                        <Image
+                          src={chat.content.data as string}
+                          alt="image"
+                          width="300"
+                          className="rounded-lg overflow-hidden"
+                          preview
+                        />
+                      </div>
+                    )}
+                  </>
+                  {chat.message && (
+                    <p
+                      className={cn(
+                        'text-black sm:max-w-[300px] max-w-[250px] break-words whitespace-pre-line inline-block text-[14px]',
+                        chat.message
+                          ? chat.content?.type === 'picture'
+                            ? chat.isHide
+                              ? 'p-3'
+                              : 'px-3 pb-3'
+                            : 'p-3'
+                          : ''
+                      )}>
+                      {chat.isHide ? '•••••' : chat.message}
+                    </p>
+                  )}
+                  {chat.message === '' && chat.content && chat.isHide && (
+                    <p className="text-black text-[14px] p-3">•••••</p>
+                  )}
+                </>
               ) : (
-                message
-              )
-            ) : (
-              <i className="font-light">Message has been deleted</i>
-            )}
-          </p>
+                <p className="font-light text-gray-400 italic inline-flex gap-1 items-center sm:text-[14px] text-[12px] p-3">
+                  <MdOutlineDoNotDisturbAlt size={18} />
+                  Message has been deleted
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <TimeDisplay
+              time={chat.created_at}
+              className="text-[12px] text-gray-400"
+              isTimeOnly={true}
+            />
+          </div>
         </div>
       </div>
     ) : (
       <div className="flex flex-col gap-1 items-end mb-4">
-        <div className="relative">
-          <p className="whitespace-pre-line inline-block p-3 text-[14px] rounded-xl bg-black text-white cursor-pointer sm:max-w-[300px] max-w-[200px] break-words">
-            {message}
-          </p>
+        <div className="rounded-xl bg-black sm:max-w-[300px] max-w-[220px]">
+          {!chat?.deleted_at ? (
+            <>
+              <>
+                {!chat.isHide && chat.content?.type === 'picture' && (
+                  <div className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
+                    <Image
+                      src={chat.content.data as string}
+                      alt="image"
+                      width="300"
+                      className="rounded-lg overflow-hidden"
+                      preview
+                    />
+                  </div>
+                )}
+              </>
+              {chat.message && (
+                <p
+                  className={cn(
+                    'text-white sm:max-w-[300px] max-w-[250px] break-words whitespace-pre-line inline-block text-[14px]',
+                    chat.message
+                      ? chat.content?.type === 'picture'
+                        ? chat.isHide
+                          ? 'p-3'
+                          : 'px-3 pb-3'
+                        : 'p-3'
+                      : ''
+                  )}>
+                  {chat.isHide ? '•••••' : chat.message}
+                </p>
+              )}
+              {chat.message === '' && chat.content && chat.isHide && (
+                <p className="text-white text-[14px] p-3">•••••</p>
+              )}
+            </>
+          ) : (
+            <p className="font-light p-3 text-gray-300 italic inline-flex gap-1 items-center sm:text-[14px] text-[12px]">
+              <MdOutlineDoNotDisturbAlt size={18} />
+              Message has been deleted
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-1">
           <TimeDisplay
-            time={time}
+            time={chat.created_at}
             className="text-[12px] text-gray-400"
             isTimeOnly={true}
           />
-          {isRead ? <BsCheckAll size={16} /> : <BsCheck size={16} />}
+          {chat.isRead ? <BsCheckAll size={16} /> : <BsCheck size={16} />}
         </div>
       </div>
     );
@@ -84,8 +162,8 @@ export default function ModalDeleteMessage({
   const handleDeleteMessage = (deletedType: DeletedType) => {
     setIsLoading(true);
     deleteMessage({
-      personal_id: personal_id,
-      message_id: id,
+      personal_id: chat.personal_id,
+      message_id: chat.id,
       user_id: user?.id || '',
       type: deletedType,
     }).finally(() => {
@@ -121,7 +199,7 @@ export default function ModalDeleteMessage({
                   <div
                     className="p-2 rounded-md border w-max text-gray-500 cursor-pointer hover:text-black transition-all"
                     onClick={close}>
-                    <FiChevronLeft size={16} />
+                    <RxCross2 size={16} />
                   </div>
                   <p className="font-medium">Delete Message ?</p>
                 </div>
@@ -134,7 +212,7 @@ export default function ModalDeleteMessage({
                     overlayBlur={2}
                     loader={<Loader color="dark" size="xs" variant="oval" />}
                   />
-                  {!isChatFriend && !(isDeleteble() || deleted_at) && (
+                  {!isChatFriend && !(isDeleteble() || chat.deleted_at) && (
                     <p onClick={() => handleDeleteMessage('everyone')}>
                       Delete for everyone
                     </p>

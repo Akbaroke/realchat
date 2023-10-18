@@ -22,6 +22,7 @@ export interface DataChats {
   user_id: string;
   name: string;
   foto?: string;
+  bio?: string;
   message: string;
   content?: Content;
   reply?: {
@@ -44,13 +45,13 @@ const useSnapshotChats = (personal_id: string) => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(firestore, 'chats'), async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       const q = query(
         collection(firestore, 'chats'),
         where('personal_id', '==', personal_id)
       );
       const snapshot = await getDocs(q);
-  
+
       const data = await Promise.all(
         snapshot.docs.map(async (field) => {
           const user_id = field.data().user_id;
@@ -64,6 +65,7 @@ const useSnapshotChats = (personal_id: string) => {
             ...field.data(),
             foto: userData.foto,
             name: userData.name,
+            bio: userData.bio,
           };
         })
       );

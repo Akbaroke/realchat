@@ -177,15 +177,7 @@ export default function LeftChat({ chat }: Props) {
                   )}>
                   Reply
                 </mo.li>
-                <ModalDeleteMessage
-                  personal_id={chat.personal_id}
-                  isChatFriend={true}
-                  id={chat.id}
-                  message={chat.message}
-                  time={chat.created_at}
-                  isRead={chat.isRead}
-                  isHide={chat.isHide}
-                  deleted_at={chat.deleted_at}>
+                <ModalDeleteMessage isChatFriend={true} chat={chat}>
                   <mo.li
                     variants={itemVariants}
                     className="rounded-lg py-1 px-2 cursor-pointer hover:bg-white hover:text-black">

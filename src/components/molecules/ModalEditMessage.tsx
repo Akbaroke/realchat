@@ -6,61 +6,95 @@ import { BsCheck, BsCheckAll } from 'react-icons/bs';
 import { useEffect, useState } from 'react';
 import InputChat from '../atoms/InputChat';
 import cn from '@/utils/cn';
-import { FiChevronLeft } from 'react-icons/fi';
+import { RxCross2 } from 'react-icons/rx';
 import updateMessage from '@/services/updateMessage';
+import { DataChats } from '@/hooks/useSnapshotChats';
+import { MdOutlineDoNotDisturbAlt } from 'react-icons/md';
+import { Image } from 'primereact/image';
 
 type Props = {
-  id: string;
-  message: string;
-  time: number;
-  isRead: boolean;
+  chat: DataChats
   children: React.ReactNode;
   isDisabled?: boolean;
 };
 
 export default function ModalEditMessage({
-  id,
+  chat,
   children,
-  message,
-  time,
-  isRead,
   isDisabled,
 }: Props) {
-  const [textChat, setTextChat] = useState(message);
+  const [textChat, setTextChat] = useState(chat.message);
   const [isLoadingBtn, setIsLoadingBtn] = useState(false);
   const [opened, { open, close }] = useDisclosure(false);
   const [isChanged, setIsChanged] = useState(false);
   const theme = useMantineTheme();
 
   useEffect(() => {
-    if (textChat.trim() !== message && textChat.trim() !== '') {
+    if (textChat.trim() !== chat.message && textChat.trim() !== '') {
       setIsChanged(true);
     } else {
       setIsChanged(false);
     }
-  }, [message, textChat]);
+  }, [chat.message, textChat]);
 
   const MessagePreview = () => (
     <div className="flex flex-col gap-1 items-end mb-4">
-      <div className="relative">
-        <p className="whitespace-pre-line inline-block p-3 text-[14px] rounded-xl bg-black text-white cursor-pointer sm:max-w-[300px] max-w-[200px] break-words">
-          {message}
-        </p>
+      <div className="rounded-xl bg-black sm:max-w-[300px] max-w-[220px]">
+        {!chat?.deleted_at ? (
+          <>
+            <>
+              {!chat.isHide && chat.content?.type === 'picture' && (
+                <div className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
+                  <Image
+                    src={chat.content.data as string}
+                    alt="image"
+                    width="300"
+                    className="rounded-lg overflow-hidden"
+                    preview
+                  />
+                </div>
+              )}
+            </>
+            {chat.message && (
+              <p
+                className={cn(
+                  'text-white sm:max-w-[300px] max-w-[250px] break-words whitespace-pre-line inline-block text-[14px]',
+                  chat.message
+                    ? chat.content?.type === 'picture'
+                      ? chat.isHide
+                        ? 'p-3'
+                        : 'px-3 pb-3'
+                      : 'p-3'
+                    : ''
+                )}>
+                {chat.isHide ? '•••••' : chat.message}
+              </p>
+            )}
+            {chat.message === '' && chat.content && chat.isHide && (
+              <p className="text-white text-[14px] p-3">•••••</p>
+            )}
+          </>
+        ) : (
+          <p className="font-light p-3 text-gray-300 italic inline-flex gap-1 items-center sm:text-[14px] text-[12px]">
+            <MdOutlineDoNotDisturbAlt size={18} />
+            Message has been deleted
+          </p>
+        )}
       </div>
       <div className="flex items-center gap-1">
         <TimeDisplay
-          time={time}
+          time={chat.created_at}
           className="text-[12px] text-gray-400"
           isTimeOnly={true}
         />
-        {isRead ? <BsCheckAll size={16} /> : <BsCheck size={16} />}
+        {chat.isRead ? <BsCheckAll size={16} /> : <BsCheck size={16} />}
       </div>
     </div>
   );
 
   const handleUpdateMessage = () => {
     setIsLoadingBtn(true);
-    updateMessage(id, textChat).finally(() => {
+    updateMessage(chat.id, textChat).finally(() => {
       setIsLoadingBtn(false);
       close();
     });
@@ -93,7 +127,7 @@ export default function ModalEditMessage({
                   <div
                     className="p-2 rounded-md border w-max text-gray-500 cursor-pointer hover:text-black transition-all"
                     onClick={close}>
-                    <FiChevronLeft size={16} />
+                    <RxCross2 size={16} />
                   </div>
                   <p className="font-medium">Edit Message</p>
                 </div>
