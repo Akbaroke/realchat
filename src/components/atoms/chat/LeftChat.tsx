@@ -15,6 +15,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { Image } from 'primereact/image';
+import downloadImage from '@/utils/downloadImage';
+import getDateTime from '@/utils/getDateTime';
 
 type Props = {
   chat: DataChats;
@@ -49,7 +51,7 @@ export default function LeftChat({ chat }: Props) {
           />
           <div className="flex flex-col gap-1">
             <div
-              className="text-[14px] border rounded-xl bg-white w-max relative cursor-pointer"
+              className="text-[14px] border rounded-xl bg-white w-max relative"
               ref={clickRef}>
               <div className="rounded-xl sm:max-w-[300px] max-w-[220px]">
                 <mo.div
@@ -91,6 +93,9 @@ export default function LeftChat({ chat }: Props) {
                         {chat.isHide ? '•••••' : chat.message}
                       </p>
                     )}
+                    {chat.message === '' && chat.content && chat.isHide && (
+                      <p className="text-black text-[14px] p-3">•••••</p>
+                    )}
                   </>
                 ) : (
                   <p className="font-light text-gray-400 italic inline-flex gap-1 items-center sm:text-[14px] text-[12px] p-3">
@@ -121,22 +126,47 @@ export default function LeftChat({ chat }: Props) {
                     },
                   },
                 }}
-                className="absolute -right-[90px] top-0 bg-black text-white border rounded-xl p-2 w-20 text-[12px] z-10">
-                <CopyButton value={chat.message}>
-                  {({ copied, copy }) => (
-                    <mo.li
-                      variants={itemVariants}
-                      onClick={chat?.deleted_at ? () => {} : copy}
-                      className={cn(
-                        'rounded-lg py-1 px-2 cursor-pointer',
-                        chat?.deleted_at
-                          ? 'cursor-not-allowed text-gray-500'
-                          : 'hover:bg-white hover:text-black'
-                      )}>
-                      {copied ? 'Copied' : 'Copy'}
-                    </mo.li>
-                  )}
-                </CopyButton>
+                className={cn(
+                  'absolute -right-[90px] top-0 bg-black text-white border rounded-xl p-2 text-[12px] z-10',
+                  chat?.content?.type
+                    ? 'w-max -right-[100px]'
+                    : 'w-20 -right-[90px]'
+                )}>
+                {chat.message !== '' && (
+                  <CopyButton value={chat.message}>
+                    {({ copied, copy }) => (
+                      <mo.li
+                        variants={itemVariants}
+                        onClick={chat?.deleted_at ? () => {} : copy}
+                        className={cn(
+                          'rounded-lg py-1 px-2 cursor-pointer',
+                          chat?.deleted_at
+                            ? 'cursor-not-allowed text-gray-500'
+                            : 'hover:bg-white hover:text-black'
+                        )}>
+                        {copied ? 'Copied' : 'Copy'}
+                      </mo.li>
+                    )}
+                  </CopyButton>
+                )}
+                {chat?.content?.type === 'picture' && (
+                  <mo.li
+                    variants={itemVariants}
+                    onClick={() =>
+                      downloadImage(
+                        chat.content?.data as string,
+                        `RealChat Image ${getDateTime()}.jpg`
+                      )
+                    }
+                    className={cn(
+                      'rounded-lg py-1 px-2 cursor-pointer',
+                      chat?.deleted_at
+                        ? 'cursor-not-allowed text-gray-500'
+                        : 'hover:bg-white hover:text-black'
+                    )}>
+                    Download
+                  </mo.li>
+                )}
                 <mo.li
                   variants={itemVariants}
                   className={cn(

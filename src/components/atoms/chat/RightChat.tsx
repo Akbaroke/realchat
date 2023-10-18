@@ -15,6 +15,8 @@ import cn from '@/utils/cn';
 import { CopyButton } from '@mantine/core';
 import { Image } from 'primereact/image';
 import { MdOutlineDoNotDisturbAlt } from 'react-icons/md';
+import downloadImage from '@/utils/downloadImage';
+import getDateTime from '@/utils/getDateTime';
 
 type Props = {
   chat: DataChats;
@@ -98,6 +100,9 @@ export default function RightChat({ chat }: Props) {
                       {isMessageHide ? '•••••' : chat.message}
                     </p>
                   )}
+                  {chat.message === '' && chat.content && isMessageHide && (
+                    <p className="text-white text-[14px] p-3">•••••</p>
+                  )}
                 </>
               ) : (
                 <p className="font-light p-3 text-gray-300 italic inline-flex gap-1 items-center sm:text-[14px] text-[12px]">
@@ -127,7 +132,12 @@ export default function RightChat({ chat }: Props) {
                   },
                 },
               }}
-              className="absolute -left-[90px] top-0 bg-white text-black border rounded-xl p-2 w-20 text-[12px] z-10">
+              className={cn(
+                'absolute top-0 bg-white text-black border rounded-xl p-2  text-[12px] z-10',
+                chat?.content?.type
+                  ? 'w-max -left-[100px]'
+                  : 'w-20 -left-[90px]'
+              )}>
               {chat.message !== '' && (
                 <CopyButton value={chat.message}>
                   {({ copied, copy }) => (
@@ -144,6 +154,24 @@ export default function RightChat({ chat }: Props) {
                     </mo.li>
                   )}
                 </CopyButton>
+              )}
+              {chat?.content?.type === 'picture' && (
+                <mo.li
+                  variants={itemVariants}
+                  onClick={() =>
+                    downloadImage(
+                      chat.content?.data as string,
+                      `RealChat Image ${getDateTime()}.jpg`
+                    )
+                  }
+                  className={cn(
+                    'rounded-lg py-1 px-2 cursor-pointer',
+                    chat?.deleted_at
+                      ? 'cursor-not-allowed text-gray-300'
+                      : 'hover:bg-black hover:text-white'
+                  )}>
+                  Download
+                </mo.li>
               )}
               <mo.li
                 variants={itemVariants}
@@ -170,23 +198,25 @@ export default function RightChat({ chat }: Props) {
                 )}>
                 {isMessageHide ? 'Show' : 'Hide'}
               </mo.li>
-              <ModalEditMessage
-                isDisabled={isEditeble() || !!(chat?.deleted_at || false)}
-                id={chat.id}
-                message={chat.message}
-                time={chat.created_at}
-                isRead={chat.isRead}>
-                <mo.li
-                  variants={itemVariants}
-                  className={cn(
-                    'rounded-lg py-1 px-2 cursor-pointer',
-                    isEditeble() || chat?.deleted_at
-                      ? 'cursor-not-allowed text-gray-300'
-                      : 'hover:bg-black hover:text-white'
-                  )}>
-                  Edit
-                </mo.li>
-              </ModalEditMessage>
+              {chat.message !== '' && (
+                <ModalEditMessage
+                  isDisabled={isEditeble() || !!(chat?.deleted_at || false)}
+                  id={chat.id}
+                  message={chat.message}
+                  time={chat.created_at}
+                  isRead={chat.isRead}>
+                  <mo.li
+                    variants={itemVariants}
+                    className={cn(
+                      'rounded-lg py-1 px-2 cursor-pointer',
+                      isEditeble() || !!(chat?.deleted_at || false)
+                        ? 'cursor-not-allowed text-gray-300'
+                        : 'hover:bg-black hover:text-white'
+                    )}>
+                    Edit
+                  </mo.li>
+                </ModalEditMessage>
+              )}
               <ModalDeleteMessage
                 personal_id={chat.personal_id}
                 id={chat.id}

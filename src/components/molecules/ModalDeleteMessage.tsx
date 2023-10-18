@@ -134,7 +134,7 @@ export default function ModalDeleteMessage({
                     overlayBlur={2}
                     loader={<Loader color="dark" size="xs" variant="oval" />}
                   />
-                  {!(isDeleteble() || deleted_at) && (
+                  {!isChatFriend && !(isDeleteble() || deleted_at) && (
                     <p onClick={() => handleDeleteMessage('everyone')}>
                       Delete for everyone
                     </p>

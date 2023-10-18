@@ -4,7 +4,7 @@ import { BiCodeAlt } from 'react-icons/bi';
 import { HiOutlineTrash } from 'react-icons/hi';
 import { RiOpenaiFill } from 'react-icons/ri';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { Loader, ScrollArea } from '@mantine/core';
+import { Loader, LoadingOverlay, ScrollArea } from '@mantine/core';
 import InputChat from '@/components/atoms/InputChat';
 import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/atoms/Button';
@@ -233,52 +233,65 @@ export default function Personal() {
         )}
       </ScrollArea>
       <div className="h-max border-t flex flex-col gap-6 p-5">
-        {image && (
-          <div className="flex items-start gap-2">
-            <Image
-              src={image?.imageBlob}
-              alt="image"
-              className="w-[150px] max-h-[200px] rounded-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 hover:scale-105"
-              preview
-            />
-            <div className="flex flex-col gap-2">
-              <TooltipComp label="Delete">
-                <Button
-                  variant="outline"
-                  className="w-max text-red-600"
-                  onClick={() => setImage(null)}>
-                  <HiOutlineTrash size={20} />
-                </Button>
-              </TooltipComp>
-              <TooltipComp label="Change">
-                <Button
-                  variant="outline"
-                  className="w-max"
-                  onClick={() => openRef.current()}>
-                  <FiRefreshCcw size={20} />
-                </Button>
-              </TooltipComp>
+        <div className="flex flex-col gap-6 relative">
+          <LoadingOverlay
+            visible={isLoadingBtn}
+            overlayBlur={2}
+            loader={<Loader color="dark" size="xs" variant="oval" />}
+          />
+          {image && (
+            <div className="flex items-start gap-2">
+              <Image
+                src={image?.imageBlob}
+                alt="image"
+                className="w-[150px] max-h-[200px] rounded-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 hover:scale-105"
+                preview
+              />
+              <div className="flex flex-col gap-2">
+                <TooltipComp label="Delete">
+                  <Button
+                    variant="outline"
+                    className="w-max text-red-600"
+                    onClick={() => setImage(null)}>
+                    <HiOutlineTrash size={20} />
+                  </Button>
+                </TooltipComp>
+                <TooltipComp label="Change">
+                  <Button
+                    variant="outline"
+                    className="w-max"
+                    onClick={() => openRef.current()}>
+                    <FiRefreshCcw size={20} />
+                  </Button>
+                </TooltipComp>
+              </div>
             </div>
-          </div>
-        )}
-        <InputChat
-          value={textChat}
-          onChange={(e) => setTextChat(e.target.value)}
-        />
+          )}
+          <InputChat
+            value={textChat}
+            onChange={(e) => setTextChat(e.target.value)}
+          />
+        </div>
         <div className="flex justify-between">
           <div className="flex gap-3">
             <TooltipComp label="Picture">
               <ButtonInputImage
                 setImage={setImage}
                 openRef={openRef as unknown as VoidFunction}
-                isDisabled={content?.type !== 'picture' && !!content?.type}
+                isDisabled={
+                  (content?.type !== 'picture' && !!content?.type) ||
+                  !isDisableSend
+                }
               />
             </TooltipComp>
             <TooltipComp label="Coding">
               <Button
                 variant="outline"
                 className="w-max"
-                isDisabled={content?.type !== 'coding' && !!content?.type}>
+                isDisabled={
+                  (content?.type !== 'coding' && !!content?.type) ||
+                  !isDisableSend
+                }>
                 <BiCodeAlt size={20} />
               </Button>
             </TooltipComp>
@@ -286,7 +299,10 @@ export default function Personal() {
               <Button
                 variant="outline"
                 className="w-max"
-                isDisabled={content?.type !== 'openai' && !!content?.type}>
+                isDisabled={
+                  (content?.type !== 'openai' && !!content?.type) ||
+                  !isDisableSend
+                }>
                 <RiOpenaiFill size={20} />
               </Button>
             </TooltipComp>
@@ -297,11 +313,7 @@ export default function Personal() {
             })}
             disabled={isDisableSend}
             onClick={handleSendMessage}>
-            {isLoadingBtn ? (
-              <Loader color="dark" size="xs" variant="oval" />
-            ) : (
-              'Send'
-            )}
+            {isLoadingBtn ? 'Sending..' : 'Send'}
           </button>
         </div>
       </div>

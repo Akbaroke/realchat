@@ -6,7 +6,6 @@ export default async function uploadImage(folderRef: string, imageFile: File) {
   try {
     await uploadBytes(storageRef, imageFile);
     const res = await getDownloadURL(storageRef);
-    console.log(res);
     return res;
   } catch (error) {
     console.log('upload image failed', error);
