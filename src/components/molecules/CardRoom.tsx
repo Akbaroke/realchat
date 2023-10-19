@@ -47,6 +47,7 @@ export default function CardRoom({ room }: Props) {
         height={50}
         src={users?.foto || DEFAULT_FOTO}
         className="rounded-lg bg-gray-200"
+        referrerPolicy="no-referrer"
       />
       <div className="grid grid-cols-3 w-full">
         <div className="flex flex-col col-span-2">

@@ -85,6 +85,7 @@ export default function NewPersonal() {
                       width={50}
                       height={50}
                       src={user.foto || DEFAULT_FOTO}
+                      referrerPolicy="no-referrer"
                       className="rounded-lg"
                     />
                     <div className="grid grid-cols-3 w-full">

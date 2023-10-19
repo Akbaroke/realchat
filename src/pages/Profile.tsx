@@ -110,6 +110,7 @@ export default function Profile() {
                 effect="blur"
                 src={user?.foto || DEFAULT_FOTO}
                 className="w-28 h-28 rounded-full bg-gray-200"
+                referrerPolicy="no-referrer"
               />
             </ModalProfilePicture>
           </div>

@@ -45,6 +45,7 @@ export default function LeftChat({ chat }: Props) {
             alt="foto"
             effect="blur"
             src={chat.foto || DEFAULT_FOTO}
+            referrerPolicy="no-referrer"
             width={30}
             height={30}
             className="rounded-lg h-max relative bottom-2 bg-gray-200"

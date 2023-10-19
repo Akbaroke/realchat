@@ -174,6 +174,7 @@ export default function Personal() {
                 alt="foto"
                 effect="blur"
                 src={foto || DEFAULT_FOTO}
+                referrerPolicy="no-referrer"
                 width={30}
                 height={30}
                 className="rounded-lg bg-gray-200"

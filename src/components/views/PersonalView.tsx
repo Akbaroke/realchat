@@ -34,8 +34,8 @@ export default function PersonalView() {
         return userMatch || messageMatch;
       })
       .sort((a, b) => {
-        const dateA = new Date(a.lastMessage.updated_at);
-        const dateB = new Date(b.lastMessage.updated_at);
+        const dateA = new Date(a.lastMessage?.updated_at);
+        const dateB = new Date(b.lastMessage?.updated_at);
         if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
           return dateB.getTime() - dateA.getTime();
         }

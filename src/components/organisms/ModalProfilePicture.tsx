@@ -49,6 +49,7 @@ export default function ModalProfilePicture({
               }}>
               <img
                 src={imgSrc}
+                referrerPolicy="no-referrer"
                 alt="foto"
                 className="rounded-full w-96 shadow-md"
                 onLoad={() => setIsLoaded(true)}
