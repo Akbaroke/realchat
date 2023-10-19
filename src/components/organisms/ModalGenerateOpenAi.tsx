@@ -65,6 +65,10 @@ export default function ModalGenerateOpenAi({ children }: Props) {
     setIsLoading(true);
     setIsShowCard(true);
     const userQuestion = inputValue;
+    setOpenAiData({
+      question: userQuestion,
+      result: '',
+    });
     setInputValue('');
     try {
       const response = await openai.chat.completions.create({
@@ -111,7 +115,7 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                   duration: 0.3,
                 },
               }}>
-              <div className="bg-white rounded-lg min-w-[300px] flex flex-col justify-between">
+              <div className="bg-white rounded-lg min-w-[300px] max-w-[400px] flex flex-col justify-between">
                 <div className="px-5 py-4 flex gap-4 items-center border-b justify-between">
                   <div className="flex items-center gap-3">
                     <LazyLoadImage
