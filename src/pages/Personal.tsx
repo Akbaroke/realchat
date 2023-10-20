@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/atoms/Button';
 import TooltipComp from '@/components/atoms/TooltipComp';
 import BallonChat from '@/components/atoms/chat/BallonChat';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import useSnapshotChats, { Content } from '@/hooks/useSnapshotChats';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
@@ -31,13 +31,16 @@ import ButtonInputImage, {
 import { Image } from 'primereact/image';
 import uploadImage from '@/services/uploadImage';
 import ModalGenerateOpenAi from '@/components/organisms/ModalGenerateOpenAi';
+import { resetOpenai } from '@/store/slices/openaiSlice';
 
 export default function Personal() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { id } = useParams();
   const [textChat, setTextChat] = useState('');
   const [fried, setFriend] = useState<UserType>();
   const { user } = useSelector((state: RootState) => state.auth);
+  const openaiContent = useSelector((state: RootState) => state.openai);
   const viewport = useRef<HTMLDivElement>(null);
   const { chatsRealtime, isLoading } = useSnapshotChats(id || '');
   const dataFriend = chatsRealtime?.find((val) => val.user_id !== user?.id);
@@ -63,6 +66,20 @@ export default function Personal() {
       setContent(null);
     }
   }, [image]);
+
+  useEffect(() => {
+    if (openaiContent.result !== '') {
+      setContent({
+        type: 'openai',
+        data: {
+          question: openaiContent.question,
+          result: openaiContent.result,
+        },
+      });
+    } else {
+      setContent(null);
+    }
+  }, [openaiContent]);
 
   useEffect(() => {
     viewport?.current?.scrollTo({
@@ -110,21 +127,25 @@ export default function Personal() {
   const foto = dataFriend?.foto || personal.foto || fried?.foto || DEFAULT_FOTO;
   const isDisableSend =
     isLoadingBtn || textChat.trim() === ''
-      ? image !== null
+      ? content
         ? false
         : true
       : false || isLoading;
 
   const handleSendMessage = async () => {
     const chat_id = uuidv4();
+    let imgUrl = '';
     if (isDisableSend) {
       return;
     }
     setIsLoadingBtn(true);
-    const upload = await uploadImage(
-      `personal/${id}/${chat_id}.jpg`,
-      image?.imageFile as File
-    );
+
+    if (content?.type === 'picture') {
+      imgUrl = await uploadImage(
+        `personal/${id}/${chat_id}.jpg`,
+        image?.imageFile as File
+      );
+    }
 
     if (chatsRealtime?.length === 0) {
       const dataPersonal: DataNewPersonal = {
@@ -148,7 +169,7 @@ export default function Personal() {
       content: content
         ? {
             type: content?.type,
-            data: upload,
+            data: content?.type === 'picture' ? imgUrl : content?.data,
           }
         : undefined,
     };
@@ -157,11 +178,12 @@ export default function Personal() {
     });
     setTextChat('');
     setImage(null);
+    dispatch(resetOpenai());
   };
 
   return (
     <div className="h-screen flex flex-col justify-between">
-      <div className="flex justify-between items-center p-5 border-b">
+      <div className="flex justify-between items-center p-5 border-b bg-white">
         <div className="flex items-center gap-5">
           <div
             className="p-2 rounded-md border w-max text-gray-500 cursor-pointer hover:text-black transition-all"
@@ -239,13 +261,39 @@ export default function Personal() {
           />
         )}
       </ScrollArea>
-      <div className="h-max border-t flex flex-col gap-6 p-5">
+      <div className="h-max border-t flex flex-col gap-6 p-5 bg-white">
         <div className="flex flex-col gap-6 relative">
           <LoadingOverlay
             visible={isLoadingBtn}
             overlayBlur={2}
             loader={<Loader color="dark" size="xs" variant="oval" />}
           />
+          {openaiContent.result && (
+            <div className="p-5 rounded-lg border border-gray-200 bg-white/50 flex flex-col gap-4 relative z-10 backdrop-blur-md">
+              <div className="absolute -right-3 -top-3">
+                <TooltipComp label="Delete">
+                  <Button
+                    variant="outline"
+                    className="w-max text-red-600"
+                    onClick={() => dispatch(resetOpenai())}>
+                    <HiOutlineTrash size={20} />
+                  </Button>
+                </TooltipComp>
+              </div>
+              <div>
+                <h1 className="italic text-gray-500 text-[14px]">Question ~</h1>
+                <p className="break-words whitespace-pre-line text-[14px] font-medium leading-6">
+                  {openaiContent.question}
+                </p>
+              </div>
+              <div>
+                <h1 className="italic text-gray-500 text-[14px]">Result ~</h1>
+                <p className="break-words whitespace-pre-line text-[14px] font-medium leading-6">
+                  {openaiContent.result}
+                </p>
+              </div>
+            </div>
+          )}
           {image && (
             <div className="flex items-start gap-2">
               <Image

@@ -13,8 +13,13 @@ import { useEffect, useState } from 'react';
 
 export interface Content {
   type: 'picture' | 'coding' | 'openai';
-  data: File | string;
+  data: File | string | OpenAiDataType;
 }
+
+export type OpenAiDataType = {
+  question: string;
+  result: string;
+};
 
 export interface DataChats {
   id: string;

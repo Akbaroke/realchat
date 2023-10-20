@@ -42,19 +42,17 @@ export default function ModalEditMessage({
       <div className="rounded-xl bg-black sm:max-w-[300px] max-w-[220px]">
         {!chat?.deleted_at ? (
           <>
-            <>
-              {!chat.isHide && chat.content?.type === 'picture' && (
-                <div className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
-                  <Image
-                    src={chat.content.data as string}
-                    alt="image"
-                    width="300"
-                    className="rounded-lg overflow-hidden"
-                    preview
-                  />
-                </div>
-              )}
-            </>
+            {!chat.isHide && chat.content?.type === 'picture' && (
+              <div className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
+                <Image
+                  src={chat.content.data as string}
+                  alt="image"
+                  width="300"
+                  className="rounded-lg overflow-hidden"
+                  preview
+                />
+              </div>
+            )}
             {chat.message && (
               <p
                 className={cn(

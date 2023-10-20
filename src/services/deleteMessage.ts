@@ -9,6 +9,7 @@ type Props = {
   message_id: string;
   user_id: string;
   type: DeletedType;
+  withImage?: boolean;
 };
 
 export default async function deleteMessage({
@@ -16,6 +17,7 @@ export default async function deleteMessage({
   message_id,
   user_id,
   type,
+  withImage,
 }: Props) {
   const time = Math.floor(new Date().getTime() / 1000.0);
   const chatsRef = doc(firestore, 'chats', message_id);
@@ -28,9 +30,11 @@ export default async function deleteMessage({
         isDeletedUs: [...deletedUs_userid, user_id],
       });
     } else {
-      await deleteObject(
-        ref(storage, `personal/${personal_id}/${message_id}.jpg`)
-      );
+      if (withImage) {
+        await deleteObject(
+          ref(storage, `personal/${personal_id}/${message_id}.jpg`)
+        );
+      }
       await updateDoc(chatsRef, {
         ...chatsData.data(),
         deleted_at: time,

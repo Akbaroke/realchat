@@ -166,6 +166,7 @@ export default function ModalDeleteMessage({
       message_id: chat.id,
       user_id: user?.id || '',
       type: deletedType,
+      withImage: chat.content?.type === 'picture' ? true : false,
     }).finally(() => {
       setIsLoading(false);
       close();

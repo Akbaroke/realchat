@@ -8,7 +8,7 @@ type Props = {
 export default function TooltipComp({ children, label }: Props) {
   return (
     <Tooltip label={label} color="dark" withArrow arrowPosition="center">
-      <div>{children}</div>
+      <div className="w-max">{children}</div>
     </Tooltip>
   );
 }

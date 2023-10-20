@@ -4,7 +4,7 @@ import { GrFormEdit } from 'react-icons/gr';
 import { Variants, motion as mo } from 'framer-motion';
 import { useState } from 'react';
 import { useClickOutside, useHover } from '@mantine/hooks';
-import { DataChats } from '@/hooks/useSnapshotChats';
+import { DataChats, OpenAiDataType } from '@/hooks/useSnapshotChats';
 import ModalEditMessage from '@/components/organisms/ModalEditMessage';
 import hideShowMessage from '@/services/hideShowMessage';
 import ModalDeleteMessage from '@/components/organisms/ModalDeleteMessage';
@@ -17,6 +17,8 @@ import { Image } from 'primereact/image';
 import { MdOutlineDoNotDisturbAlt } from 'react-icons/md';
 import downloadImage from '@/utils/downloadImage';
 import getDateTime from '@/utils/getDateTime';
+import { BLACK_OPENAI } from '@/assets';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 type Props = {
   chat: DataChats;
@@ -52,6 +54,8 @@ export default function RightChat({ chat }: Props) {
     return currentTimeSeconds > waktuEditeble;
   };
 
+  const openaiData = chat?.content?.data as OpenAiDataType;
+
   return (
     !isDeletedMe({
       deletedUs_userid: chat?.isDeletedUs || [],
@@ -63,18 +67,24 @@ export default function RightChat({ chat }: Props) {
             <div className="rounded-xl bg-black sm:max-w-[300px] max-w-[220px]">
               <mo.div
                 animate={{ opacity: hovered ? 1 : 0 }}
-                whileTap={{ scale: 0.5 }}
                 className="absolute -left-5 top-4 text-black cursor-pointer"
                 onClick={() => setIsOpen(!isOpen)}>
-                <BsThreeDotsVertical size={16} />
+                <BsThreeDotsVertical
+                  size={16}
+                  className="active:scale-50 transition-all duration-300"
+                />
               </mo.div>
 
               {!chat?.deleted_at ? (
                 <>
-                  <>
+                  <div
+                    className={cn(
+                      'px-3 pt-3',
+                      !chat.content && 'hidden',
+                      chat.content?.type === 'openai' && !chat.message && 'pb-3'
+                    )}>
                     {!isMessageHide && chat.content?.type === 'picture' && (
-                      <div
-                        className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
+                      <div className={cn(chat.message ? 'pb-0' : 'pb-2')}>
                         <Image
                           src={chat.content.data as string}
                           alt="image"
@@ -84,7 +94,36 @@ export default function RightChat({ chat }: Props) {
                         />
                       </div>
                     )}
-                  </>
+                    {!isMessageHide && chat.content?.type === 'openai' && (
+                      <div className="p-3 rounded-lg flex flex-col gap-4 relative text-white bg-gray-900">
+                        <div className="absolute -right-1 -top-1 bg-white w-10 h-10 grid place-items-center p-1 rounded-full">
+                          <LazyLoadImage
+                            alt="foto"
+                            effect="blur"
+                            src={BLACK_OPENAI}
+                            width={30}
+                            height={30}
+                          />
+                        </div>
+                        <div>
+                          <h1 className="italic text-gray-500 text-[14px]">
+                            Question ~
+                          </h1>
+                          <p className="break-words whitespace-pre-line text-[14px] font-medium leading-6">
+                            {openaiData.question}
+                          </p>
+                        </div>
+                        <div>
+                          <h1 className="italic text-gray-500 text-[14px]">
+                            Result ~
+                          </h1>
+                          <p className="break-words whitespace-pre-line text-[14px] font-medium leading-6">
+                            {openaiData.result}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   {chat.message && (
                     <p
                       className={cn(
@@ -134,7 +173,7 @@ export default function RightChat({ chat }: Props) {
               }}
               className={cn(
                 'absolute top-0 bg-white text-black border rounded-xl p-2  text-[12px] z-10',
-                chat?.content?.type
+                chat?.content?.type === 'picture'
                   ? 'w-max -left-[100px]'
                   : 'w-20 -left-[90px]'
               )}>

@@ -1,5 +1,6 @@
-import { LOGO_OPENAI } from '@/assets';
+import { BLACK_OPENAI } from '@/assets';
 import {
+  CopyButton,
   Loader,
   Modal,
   ScrollArea,
@@ -7,19 +8,24 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { useDisclosure, useElementSize } from '@mantine/hooks';
-import { motion } from 'framer-motion';
+import { Variants, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { RxCross2 } from 'react-icons/rx';
 import { AiOutlineArrowUp } from 'react-icons/ai';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { TypeAnimation } from 'react-type-animation';
 import openai from '@/config/openai';
+import { BsThreeDotsVertical } from 'react-icons/bs';
+import { motion as mo } from 'framer-motion';
+import { useDispatch } from 'react-redux';
+import { setOpenai } from '@/store/slices/openaiSlice';
 
 type Props = {
   children: React.ReactNode;
 };
 
 export default function ModalGenerateOpenAi({ children }: Props) {
+  const dispatch = useDispatch();
   const [isLoadingTyping, setIsLoadingTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isShowCard, setIsShowCard] = useState(false);
@@ -32,6 +38,7 @@ export default function ModalGenerateOpenAi({ children }: Props) {
     result: '',
   });
   const theme = useMantineTheme();
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (isLoadingTyping) {
@@ -93,11 +100,16 @@ export default function ModalGenerateOpenAi({ children }: Props) {
     }
   };
 
+  const handleForward = () => {
+    dispatch(setOpenai(openAiData));
+    close();
+  };
+
   return (
     <>
       <Modal.Root
         opened={opened}
-        onClose={close}
+        onClose={() => {}}
         className="w-max"
         size="100%"
         centered>
@@ -121,7 +133,7 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                     <LazyLoadImage
                       alt="foto"
                       effect="blur"
-                      src={LOGO_OPENAI}
+                      src={BLACK_OPENAI}
                       width={30}
                       height={30}
                       className="rounded-lg bg-white"
@@ -142,16 +154,30 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                   type="scroll"
                   className="flex-1 h-max bg-black bg-opacity-10 flex flex-col justify-between">
                   <img
-                    src={LOGO_OPENAI}
+                    src={BLACK_OPENAI}
                     alt=""
                     className="filter grayscale blur-sm contrast-0 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/2"
                   />
-                  <div className="p-10 max-h-[300px] min-h-[200px] flex-1">
+                  <mo.div
+                    className="p-8 max-h-[300px] min-h-[200px] flex-1"
+                    ref={ref}
+                    initial={false}
+                    animate={isOpen ? 'open' : 'closed'}>
                     {isShowCard && (
                       <>
-                        <div
-                          className="p-5 rounded-lg border border-gray-200 bg-white/50 flex flex-col gap-4 relative z-10 backdrop-blur-md shadow-xl shadow-black/10"
-                          ref={ref}>
+                        <div className="p-5 rounded-lg border border-gray-200 bg-white/50 flex flex-col gap-4 relative z-10 backdrop-blur-md shadow-xl shadow-black/10">
+                          <mo.div
+                            animate={{
+                              opacity:
+                                openAiData.result && !isLoadingTyping ? 1 : 0,
+                            }}
+                            className="absolute right-5 top-5 text-black cursor-pointer"
+                            onClick={() => setIsOpen(!isOpen)}>
+                            <BsThreeDotsVertical
+                              size={16}
+                              className="active:scale-50 transition-all duration-300"
+                            />
+                          </mo.div>
                           <div>
                             <h1 className="italic text-gray-500 text-[14px]">
                               Question ~
@@ -165,7 +191,12 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                               Result ~
                             </h1>
                             {isLoading ? (
-                              <Loader color="dark" size="xs" variant="dots" />
+                              <Loader
+                                color="dark"
+                                size="xs"
+                                variant="dots"
+                                className="mt-2"
+                              />
                             ) : (
                               <TypeAnimation
                                 sequence={[
@@ -180,11 +211,50 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                               />
                             )}
                           </div>
+                          <mo.ul
+                            onClick={() => setIsOpen(false)}
+                            variants={{
+                              open: {
+                                clipPath: 'inset(0% 0% 0% 0% round 10px)',
+                                transition: {
+                                  type: 'spring',
+                                  bounce: 0,
+                                  delayChildren: 0.3,
+                                  staggerChildren: 0.05,
+                                },
+                              },
+                              closed: {
+                                clipPath: 'inset(20% 0% 80% 100% round 10px)',
+                                transition: {
+                                  type: 'spring',
+                                  bounce: 0,
+                                  duration: 0.3,
+                                },
+                              },
+                            }}
+                            className="absolute top-5 right-10 bg-white text-black border rounded-xl p-2 w-22 text-[12px] z-10">
+                            <CopyButton value={openAiData.result}>
+                              {({ copied, copy }) => (
+                                <mo.li
+                                  variants={itemVariants}
+                                  onClick={copy}
+                                  className="rounded-lg py-1 px-2 cursor-pointer hover:bg-black hover:text-white">
+                                  {copied ? 'Copied' : 'Copy'}
+                                </mo.li>
+                              )}
+                            </CopyButton>
+                            <mo.li
+                              variants={itemVariants}
+                              onClick={handleForward}
+                              className="rounded-lg py-1 px-2 cursor-pointer hover:bg-black hover:text-white">
+                              Forward
+                            </mo.li>
+                          </mo.ul>
                         </div>
                         <div className="h-10"></div>
                       </>
                     )}
-                  </div>
+                  </mo.div>
                 </ScrollArea>
                 <div className="h-full border-t gap-3 px-5 pb-5 items-center bg-black bg-opacity-10">
                   <div className="flex bg-white rounded-2xl p-2 items-center">
@@ -223,3 +293,12 @@ export default function ModalGenerateOpenAi({ children }: Props) {
     </>
   );
 }
+
+const itemVariants: Variants = {
+  open: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 300, damping: 24 },
+  },
+  closed: { opacity: 0, y: 20, transition: { duration: 0.2 } },
+};

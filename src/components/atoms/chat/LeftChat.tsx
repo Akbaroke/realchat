@@ -2,9 +2,9 @@ import TimeDisplay from '../TimeDisplay';
 import { useState } from 'react';
 import { useClickOutside, useHover } from '@mantine/hooks';
 import { Variants, motion as mo } from 'framer-motion';
-import { DataChats } from '@/hooks/useSnapshotChats';
+import { DataChats, OpenAiDataType } from '@/hooks/useSnapshotChats';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import { DEFAULT_FOTO } from '@/assets';
+import { WHITE_OPENAI, DEFAULT_FOTO } from '@/assets';
 import { GrFormEdit } from 'react-icons/gr';
 import { CopyButton } from '@mantine/core';
 import cn from '@/utils/cn';
@@ -29,6 +29,7 @@ export default function LeftChat({ chat }: Props) {
   const [isSett, setIsSett] = useState(false);
   const settRef = useClickOutside(() => setIsSett(false));
   const { hovered, ref } = useHover();
+  const openaiData = chat?.content?.data as OpenAiDataType;
 
   return (
     !isDeletedMe({
@@ -57,18 +58,26 @@ export default function LeftChat({ chat }: Props) {
               <div className="rounded-xl sm:max-w-[300px] max-w-[220px]">
                 <mo.div
                   animate={{ opacity: isSett || hovered ? 1 : 0 }}
-                  whileTap={{ scale: 0.5 }}
                   className="absolute -right-5 top-4 text-black cursor-pointer"
                   onClick={() => setIsOpen(!isOpen)}>
-                  <BsThreeDotsVertical size={16} />
+                  <BsThreeDotsVertical
+                    size={16}
+                    className="active:scale-50 transition-all duration-300"
+                  />
                 </mo.div>
 
                 {!chat?.deleted_at ? (
                   <>
-                    <>
+                    <div
+                      className={cn(
+                        'px-3 pt-3',
+                        !chat.content && 'hidden',
+                        chat.content?.type === 'openai' &&
+                          !chat.message &&
+                          'pb-3'
+                      )}>
                       {!chat.isHide && chat.content?.type === 'picture' && (
-                        <div
-                          className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
+                        <div className={cn(chat.message ? 'pb-0' : 'pb-1')}>
                           <Image
                             src={chat.content.data as string}
                             alt="image"
@@ -78,7 +87,36 @@ export default function LeftChat({ chat }: Props) {
                           />
                         </div>
                       )}
-                    </>
+                      {!chat.isHide && chat.content?.type === 'openai' && (
+                        <div className="p-3 rounded-lg flex flex-col gap-4 relative text-black bg-gray-100">
+                          <div className="absolute -right-1 -top-1 bg-black w-10 h-10 grid place-items-center p-1 rounded-full">
+                            <LazyLoadImage
+                              alt="foto"
+                              effect="blur"
+                              src={WHITE_OPENAI}
+                              width={30}
+                              height={30}
+                            />
+                          </div>
+                          <div>
+                            <h1 className="italic text-gray-500 text-[14px]">
+                              Question ~
+                            </h1>
+                            <p className="break-words whitespace-pre-line text-[14px] font-medium leading-6">
+                              {openaiData.question}
+                            </p>
+                          </div>
+                          <div>
+                            <h1 className="italic text-gray-500 text-[14px]">
+                              Result ~
+                            </h1>
+                            <p className="break-words whitespace-pre-line text-[14px] font-medium leading-6">
+                              {openaiData.result}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     {chat.message && (
                       <p
                         className={cn(

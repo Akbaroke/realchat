@@ -53,7 +53,7 @@ export default function CardRoom({ room }: Props) {
         <div className="flex flex-col col-span-2">
           <h1 className="text-[15px] font-medium">{users?.name}</h1>
           <div className="flex items-center justify-start w-full gap-1">
-            {room.lastMessage.content?.type === 'picture' && (
+            {room?.lastMessage?.content?.type === 'picture' && (
               <LuImage
                 size={13}
                 className={cn({
@@ -103,7 +103,7 @@ export default function CardRoom({ room }: Props) {
                   {room?.countUnread}
                 </span>
               )
-            ) : room?.lastMessage.isRead ? (
+            ) : room?.lastMessage?.isRead ? (
               <BsCheckAll size={18} />
             ) : (
               <BsCheck size={18} />
