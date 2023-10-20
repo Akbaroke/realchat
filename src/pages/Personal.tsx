@@ -32,6 +32,7 @@ import { Image } from 'primereact/image';
 import uploadImage from '@/services/uploadImage';
 import ModalGenerateOpenAi from '@/components/organisms/ModalGenerateOpenAi';
 import { resetOpenai } from '@/store/slices/openaiSlice';
+import checkValidatePersonal from '@/services/checkValidatePersonal';
 
 export default function Personal() {
   const navigate = useNavigate();
@@ -49,6 +50,16 @@ export default function Personal() {
   const [image, setImage] = useState<ImageType | null>(null);
   const openRef = useRef<VoidFunction>(() => {});
   const [content, setContent] = useState<Content | null>(null);
+
+  useEffect(() => {
+    if (user?.id && id) {
+      checkValidatePersonal(user?.id, id).then((res) => {
+        if (!res) {
+          navigate('/', { replace: true });
+        }
+      });
+    }
+  }, [id, navigate, user?.id]);
 
   useEffect(() => {
     if (!!dataFriend || personal.name === '') {
