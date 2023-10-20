@@ -52,6 +52,13 @@ export default function Personal() {
   const [content, setContent] = useState<Content | null>(null);
 
   useEffect(() => {
+    return () => {
+      dispatch(resetOpenai());
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     if (user?.id && id) {
       checkValidatePersonal(user?.id, id).then((res) => {
         if (!res) {
