@@ -11,6 +11,7 @@ import { DEFAULT_FOTO } from '@/assets';
 import { GrFormEdit } from 'react-icons/gr';
 import isDeletedMe from '@/utils/isDeletedMe';
 import { LuImage } from 'react-icons/lu';
+import { SiOpenai } from 'react-icons/si';
 
 type Props = {
   room: ListRooms;
@@ -55,6 +56,14 @@ export default function CardRoom({ room }: Props) {
           <div className="flex items-center justify-start w-full gap-1">
             {room?.lastMessage?.content?.type === 'picture' && (
               <LuImage
+                size={13}
+                className={cn({
+                  'text-gray-400': room?.countUnread === 0,
+                })}
+              />
+            )}
+            {room?.lastMessage?.content?.type === 'openai' && (
+              <SiOpenai
                 size={13}
                 className={cn({
                   'text-gray-400': room?.countUnread === 0,
