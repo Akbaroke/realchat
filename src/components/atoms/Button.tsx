@@ -26,7 +26,7 @@ export default function Button({
       onClick={onClick}
       disabled={isDisabled || isLoading}
       className={cn(
-        'w-full px-2 py-2 sm:px-4 rounded-lg sm:rounded-xl text-[14px] font-semibold hover:shadow-md transition-all duration-300',
+        'w-full px-2 py-2 rounded-lg sm:rounded-xl text-[14px] font-semibold hover:shadow-md transition-all duration-300',
         {
           'bg-black text-white ': variant === 'fill',
           'bg-white text-black border border-gray-200': variant === 'outline',
