@@ -8,7 +8,7 @@ import { DataChats, OpenAiDataType } from '@/hooks/useSnapshotChats';
 import ModalEditMessage from '@/components/organisms/ModalEditMessage';
 import hideShowMessage from '@/services/hideShowMessage';
 import ModalDeleteMessage from '@/components/organisms/ModalDeleteMessage';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import isDeletedMe from '@/utils/isDeletedMe';
 import cn from '@/utils/cn';
@@ -20,12 +20,17 @@ import getDateTime from '@/utils/getDateTime';
 import { BLACK_OPENAI } from '@/assets';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { toastError, toastLoading, toastSuccess } from '../Toast';
+import { setReply } from '@/store/slices/replySlice';
+import { LuImage } from 'react-icons/lu';
+import { SiOpenai } from 'react-icons/si';
 
 type Props = {
   chat: DataChats;
+  scrollToChat: (chat_id: string) => void;
 };
 
-export default function RightChat({ chat }: Props) {
+export default function RightChat({ chat, scrollToChat }: Props) {
+  const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
   const [isMessageHide, setIsMessageHide] = useState(chat.isHide);
@@ -94,9 +99,15 @@ ${chat?.message}`;
       user_id: user?.id || '',
     }) && (
       <mo.div initial={false} animate={isOpen ? 'open' : 'closed'}>
-        <div className="flex flex-col gap-1 items-end mb-4" ref={ref}>
+        <div className="flex flex-col gap-1 items-end" ref={ref}>
           <mo.div className="relative" ref={clickRef}>
-            <div className="rounded-xl bg-black sm:max-w-[300px] max-w-[220px]">
+            <div
+              className={cn(
+                'rounded-xl bg-black sm:max-w-[300px] max-w-[220px]',
+                {
+                  'px-2 pt-2': !isMessageHide && chat?.reply?.id,
+                }
+              )}>
               <mo.div
                 animate={{ opacity: hovered ? 1 : 0 }}
                 className="absolute -left-5 top-4 text-black cursor-pointer"
@@ -112,7 +123,7 @@ ${chat?.message}`;
                   <div
                     className={cn(
                       'px-3 pt-3',
-                      (!chat.content || chat.isHide) && 'hidden',
+                      (!chat.content || isMessageHide) && 'hidden',
                       chat.content?.type === 'openai' && !chat.message && 'pb-3'
                     )}>
                     {!isMessageHide && chat.content?.type === 'picture' && (
@@ -156,6 +167,53 @@ ${chat?.message}`;
                       </div>
                     )}
                   </div>
+                  {!isMessageHide && chat?.reply?.id && (
+                    <div
+                      className="p-3 text-white bg-gray-900 rounded-lg cursor-pointer shadow-inner shadow-gray-700"
+                      onClick={() => scrollToChat(chat?.reply?.id || '')}>
+                      <div className="flex items-center gap-3">
+                        {chat?.reply?.content?.type === 'picture' && (
+                          <LazyLoadImage
+                            alt="foto"
+                            effect="blur"
+                            width={50}
+                            height={50}
+                            src={chat?.reply.content?.data as string}
+                            className="rounded-lg bg-gray-200 h-full object-cover shadow-md"
+                            referrerPolicy="no-referrer"
+                          />
+                        )}
+                        <div>
+                          <h1 className="text-[15px] font-medium whitespace-nowrap overflow-hidden overflow-ellipsis w-full">
+                            {chat?.reply.user_id === user?.id
+                              ? 'You'
+                              : chat?.reply.name}
+                          </h1>
+                          <div className="flex items-center justify-start w-full gap-1">
+                            {chat?.reply?.content?.type === 'picture' && (
+                              <LuImage size={13} />
+                            )}
+                            {chat?.reply?.content?.type === 'openai' && (
+                              <SiOpenai size={13} />
+                            )}
+                            <p
+                              className={cn(
+                                'whitespace-nowrap text-[12px] overflow-hidden overflow-ellipsis w-full max-w-[100px]',
+                                {
+                                  capitalize:
+                                    !chat?.reply?.message &&
+                                    chat?.reply?.content,
+                                }
+                              )}>
+                              {!chat?.reply?.message && chat?.reply?.content
+                                ? chat?.reply?.content?.type
+                                : chat?.reply?.message}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   {chat.message && (
                     <p
                       className={cn(
@@ -165,6 +223,8 @@ ${chat?.message}`;
                             ? isMessageHide
                               ? 'p-3'
                               : 'px-3 pb-3'
+                            : !chat.isHide && chat?.reply?.id
+                            ? 'px-2 py-3'
                             : 'p-3'
                           : ''
                       )}>
@@ -244,10 +304,14 @@ ${chat?.message}`;
               {chat?.content?.type === 'picture' && (
                 <mo.li
                   variants={itemVariants}
-                  onClick={!chat?.deleted_at ? handleDownloadImage : () => null}
+                  onClick={
+                    chat?.deleted_at || chat.isHide
+                      ? () => null
+                      : handleDownloadImage
+                  }
                   className={cn(
                     'rounded-lg py-1 px-2 cursor-pointer',
-                    chat?.deleted_at
+                    chat?.deleted_at || chat.isHide
                       ? 'cursor-not-allowed text-gray-300'
                       : 'hover:bg-black hover:text-white'
                   )}>
@@ -258,10 +322,15 @@ ${chat?.message}`;
                 variants={itemVariants}
                 className={cn(
                   'rounded-lg py-1 px-2 cursor-pointer',
-                  chat?.deleted_at
+                  chat?.deleted_at || chat.isHide
                     ? 'cursor-not-allowed text-gray-300'
                     : 'hover:bg-black hover:text-white'
-                )}>
+                )}
+                onClick={() =>
+                  chat?.deleted_at || chat.isHide
+                    ? null
+                    : dispatch(setReply({ chat }))
+                }>
                 Reply
               </mo.li>
               <mo.li

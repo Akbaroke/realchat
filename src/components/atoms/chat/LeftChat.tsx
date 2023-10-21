@@ -11,19 +11,24 @@ import cn from '@/utils/cn';
 import ModalDeleteMessage from '@/components/organisms/ModalDeleteMessage';
 import { MdOutlineDoNotDisturbAlt } from 'react-icons/md';
 import isDeletedMe from '@/utils/isDeletedMe';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { Image } from 'primereact/image';
 import downloadImage from '@/utils/downloadImage';
 import getDateTime from '@/utils/getDateTime';
 import { toastError, toastLoading, toastSuccess } from '../Toast';
+import { setReply } from '@/store/slices/replySlice';
+import { LuImage } from 'react-icons/lu';
+import { SiOpenai } from 'react-icons/si';
 
 type Props = {
   chat: DataChats;
+  scrollToChat: (chat_id: string) => void;
 };
 
-export default function LeftChat({ chat }: Props) {
+export default function LeftChat({ chat, scrollToChat }: Props) {
+  const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useSelector((state: RootState) => state.auth);
   const clickRef = useClickOutside(() => setIsOpen(false));
@@ -73,7 +78,7 @@ ${chat?.message}`;
         animate={isOpen ? 'open' : 'closed'}
         ref={settRef}
         onClick={() => setIsSett(!isOpen)}>
-        <div className="flex items-end gap-2 mb-4 w-full" ref={ref}>
+        <div className="flex items-end gap-2 w-full" ref={ref}>
           <LazyLoadImage
             alt="foto"
             effect="blur"
@@ -87,7 +92,10 @@ ${chat?.message}`;
             <div
               className="text-[14px] border rounded-xl bg-white w-max relative"
               ref={clickRef}>
-              <div className="rounded-xl sm:max-w-[300px] max-w-[220px]">
+              <div
+                className={cn('rounded-xl sm:max-w-[300px] max-w-[220px]', {
+                  'px-2 pt-2': !chat.isHide && chat?.reply?.id,
+                })}>
                 <mo.div
                   animate={{ opacity: isSett || hovered ? 1 : 0 }}
                   className="absolute -right-5 top-4 text-black cursor-pointer"
@@ -149,6 +157,53 @@ ${chat?.message}`;
                         </div>
                       )}
                     </div>
+                    {!chat.isHide && chat?.reply?.id && (
+                      <div
+                        className="p-3 text-black bg-gray-200 rounded-lg cursor-pointer shadow-inner shadow-gray-300"
+                        onClick={() => scrollToChat(chat?.reply?.id || '')}>
+                        <div className="flex items-center gap-3">
+                          {chat?.reply?.content?.type === 'picture' && (
+                            <LazyLoadImage
+                              alt="foto"
+                              effect="blur"
+                              width={50}
+                              height={50}
+                              src={chat?.reply.content?.data as string}
+                              className="rounded-lg bg-gray-200 h-full object-cover shadow-md"
+                              referrerPolicy="no-referrer"
+                            />
+                          )}
+                          <div>
+                            <h1 className="text-[15px] font-medium whitespace-nowrap overflow-hidden overflow-ellipsis w-full text-gray-800">
+                              {chat?.reply.user_id === user?.id
+                                ? 'You'
+                                : chat?.reply.name}
+                            </h1>
+                            <div className="flex items-center justify-start w-full gap-1 text-gray-500">
+                              {chat?.reply?.content?.type === 'picture' && (
+                                <LuImage size={13} />
+                              )}
+                              {chat?.reply?.content?.type === 'openai' && (
+                                <SiOpenai size={13} />
+                              )}
+                              <p
+                                className={cn(
+                                  'whitespace-nowrap text-[12px] overflow-hidden overflow-ellipsis w-full max-w-[100px]',
+                                  {
+                                    capitalize:
+                                      !chat?.reply?.message &&
+                                      chat?.reply?.content,
+                                  }
+                                )}>
+                                {!chat?.reply?.message && chat?.reply?.content
+                                  ? chat?.reply?.content?.type
+                                  : chat?.reply?.message}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     {chat.message && (
                       <p
                         className={cn(
@@ -158,6 +213,8 @@ ${chat?.message}`;
                               ? chat.isHide
                                 ? 'p-3'
                                 : 'px-3 pb-3'
+                              : !chat.isHide && chat?.reply?.id
+                              ? 'px-1 py-2'
                               : 'p-3'
                             : ''
                         )}>
@@ -176,6 +233,7 @@ ${chat?.message}`;
                 )}
               </div>
               <mo.ul
+                onClick={() => setIsOpen(false)}
                 variants={{
                   open: {
                     clipPath: 'inset(0% 0% 0% 0% round 10px)',
@@ -238,11 +296,14 @@ ${chat?.message}`;
                 {chat?.content?.type === 'picture' && (
                   <mo.li
                     variants={itemVariants}
-                    onClick={!chat?.deleted_at ?  handleDownloadImage : () => null
+                    onClick={
+                      chat?.deleted_at || chat.isHide
+                        ? () => null
+                        : handleDownloadImage
                     }
                     className={cn(
                       'rounded-lg py-1 px-2 cursor-pointer',
-                      chat?.deleted_at
+                      chat?.deleted_at || chat.isHide
                         ? 'cursor-not-allowed text-gray-500'
                         : 'hover:bg-white hover:text-black'
                     )}>
@@ -253,10 +314,15 @@ ${chat?.message}`;
                   variants={itemVariants}
                   className={cn(
                     'rounded-lg py-1 px-2 cursor-pointer',
-                    chat?.deleted_at
+                    chat?.deleted_at || chat.isHide
                       ? 'cursor-not-allowed text-gray-500'
                       : 'hover:bg-white hover:text-black'
-                  )}>
+                  )}
+                  onClick={() =>
+                    chat?.deleted_at || chat.isHide
+                      ? null
+                      : dispatch(setReply({ chat }))
+                  }>
                   Reply
                 </mo.li>
                 <ModalDeleteMessage isChatFriend={true} chat={chat}>

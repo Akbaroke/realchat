@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface PersonalState {
+export interface OpenaiState {
   question: string;
   result: string;
 }
 
-const initialState: PersonalState = {
+const initialState: OpenaiState = {
   question: '',
   result: '',
 };
@@ -14,7 +14,7 @@ export const openaiSlice = createSlice({
   name: 'openai',
   initialState,
   reducers: {
-    setOpenai: (state, action: PayloadAction<PersonalState>) => {
+    setOpenai: (state, action: PayloadAction<OpenaiState>) => {
       state.question = action.payload.question;
       state.result = action.payload.result;
     },

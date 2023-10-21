@@ -1,5 +1,5 @@
 import { firestore } from '@/config/firebase';
-import { Content } from '@/hooks/useSnapshotChats';
+import { Content, DataChats } from '@/hooks/useSnapshotChats';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 export interface DataMessage {
@@ -8,11 +8,7 @@ export interface DataMessage {
   personal_id: string;
   message: string;
   content?: Content;
-  reply?: {
-    id: string;
-    name: string;
-    message: string;
-  };
+  reply?: DataChats | string;
 }
 
 export default async function sendMessage(dataChat: DataMessage) {

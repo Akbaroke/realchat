@@ -30,11 +30,7 @@ export interface DataChats {
   bio?: string;
   message: string;
   content?: Content;
-  reply?: {
-    id: string;
-    name: string;
-    message: string;
-  };
+  reply?: DataChats;
   isRead: boolean;
   isHide: boolean;
   isEdit: boolean;
@@ -45,7 +41,7 @@ export interface DataChats {
 }
 
 const useSnapshotChats = (personal_id: string) => {
-  const [chatsRealtime, setChatsRealtime] = useState<DataChats[]>();
+  const [chatsRealtime, setChatsRealtime] = useState<DataChats[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -64,6 +60,34 @@ const useSnapshotChats = (personal_id: string) => {
             doc(collection(firestore, 'users'), user_id)
           );
           const userData = userDoc.data() as UserType;
+
+          const reply_id = field.data()?.reply;
+          if (reply_id) {
+            const replyDoc = await getDoc(
+              doc(collection(firestore, 'chats'), reply_id)
+            );
+            const replyData = replyDoc.data() as DataChats;
+            const userDoc = await getDoc(
+              doc(collection(firestore, 'users'), replyData.user_id)
+            );
+            const userInfo = userDoc.data() as UserType;
+
+            const replyDataResult = {
+              ...replyData,
+              foto: userInfo.foto,
+              name: userInfo.name,
+              bio: userInfo.bio,
+            };
+
+            return {
+              id: field.id,
+              ...field.data(),
+              foto: userData.foto,
+              name: userData.name,
+              bio: userData.bio,
+              reply: replyDataResult,
+            };
+          }
 
           return {
             id: field.id,

@@ -1,18 +1,17 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiChevronLeft, FiRefreshCcw } from 'react-icons/fi';
-import { BiCodeAlt } from 'react-icons/bi';
+// import { BiCodeAlt } from 'react-icons/bi';
 import { HiOutlineTrash } from 'react-icons/hi';
 import { RiOpenaiFill } from 'react-icons/ri';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { Loader, LoadingOverlay, ScrollArea } from '@mantine/core';
 import InputChat from '@/components/atoms/InputChat';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Button from '@/components/atoms/Button';
 import TooltipComp from '@/components/atoms/TooltipComp';
-import BallonChat from '@/components/atoms/chat/BallonChat';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import useSnapshotChats, { Content } from '@/hooks/useSnapshotChats';
+import useSnapshotChats, { Content, DataChats } from '@/hooks/useSnapshotChats';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import updateReadChat from '@/services/updateReadChat';
 import sendMessage, { DataMessage } from '@/services/sendMessage';
@@ -33,6 +32,11 @@ import uploadImage from '@/services/uploadImage';
 import ModalGenerateOpenAi from '@/components/organisms/ModalGenerateOpenAi';
 import { resetOpenai } from '@/store/slices/openaiSlice';
 import checkValidatePersonal from '@/services/checkValidatePersonal';
+import { resetReply } from '@/store/slices/replySlice';
+import { LuImage } from 'react-icons/lu';
+import { SiOpenai } from 'react-icons/si';
+import LeftChat from '@/components/atoms/chat/LeftChat';
+import RightChat from '@/components/atoms/chat/RightChat';
 
 export default function Personal() {
   const navigate = useNavigate();
@@ -41,6 +45,7 @@ export default function Personal() {
   const [textChat, setTextChat] = useState('');
   const [fried, setFriend] = useState<UserType>();
   const { user } = useSelector((state: RootState) => state.auth);
+  const reply = useSelector((state: RootState) => state.reply);
   const openaiContent = useSelector((state: RootState) => state.openai);
   const viewport = useRef<HTMLDivElement>(null);
   const { chatsRealtime, isLoading } = useSnapshotChats(id || '');
@@ -50,6 +55,8 @@ export default function Personal() {
   const [image, setImage] = useState<ImageType | null>(null);
   const openRef = useRef<VoidFunction>(() => {});
   const [content, setContent] = useState<Content | null>(null);
+  const [chatFocus, setChatFocus] = useState<string>('');
+  const [oldChatsData, setOldChatsData] = useState<DataChats[]>([]);
 
   useEffect(() => {
     return () => {
@@ -59,14 +66,16 @@ export default function Personal() {
   }, []);
 
   useEffect(() => {
-    if (user?.id && id) {
-      checkValidatePersonal(user?.id, id).then((res) => {
-        if (!res) {
-          navigate('/', { replace: true });
-        }
-      });
+    if(personal.personal_id === ''){
+      if (user?.id && id) {
+        checkValidatePersonal(user?.id, id).then((res) => {
+          if (!res) {
+            navigate('/', { replace: true });
+          }
+        });
+      }
     }
-  }, [id, navigate, user?.id]);
+  }, [id, navigate, personal.personal_id, user?.id]);
 
   useEffect(() => {
     if (!!dataFriend || personal.name === '') {
@@ -100,14 +109,15 @@ export default function Personal() {
   }, [openaiContent]);
 
   useEffect(() => {
-    viewport?.current?.scrollTo({
-      top: viewport.current.scrollHeight,
-      behavior: 'smooth',
-    });
-    if (chatsRealtime && user?.id) {
+    if (chatsRealtime && user?.id && chatsRealtime.length !== oldChatsData.length) {
+      viewport?.current?.scrollTo({
+        top: viewport.current.scrollHeight,
+        behavior: 'smooth',
+      });
       updateReadChat(chatsRealtime, user?.id || '');
+      setOldChatsData(chatsRealtime);
     }
-  }, [chatsRealtime, personal, user?.id]);
+  }, [chatsRealtime, oldChatsData.length, user?.id]);
 
   // Mengambil timestamp untuk hari ini
   const today = new Date();
@@ -178,12 +188,14 @@ export default function Personal() {
       personal_id: id || '',
       user_id: user?.id || '',
       message: textChat,
+      reply: reply.chat?.id || ''
     };
     const data2: DataMessage = {
       id: chat_id,
       personal_id: id || '',
       user_id: user?.id || '',
       message: textChat,
+      reply: reply.chat?.id || '',
       content: content
         ? {
             type: content?.type,
@@ -197,6 +209,23 @@ export default function Personal() {
     setTextChat('');
     setImage(null);
     dispatch(resetOpenai());
+    dispatch(resetReply());
+  };
+
+  const scrollToChat = (chatId: string) => {
+    setChatFocus(chatId);
+    const chatElement = document.getElementById(`chat-${chatId}`);
+
+    if (chatElement) {
+      viewport?.current?.scrollTo({
+        top: chatElement.offsetTop,
+        behavior: 'smooth',
+      });
+    }
+
+    setTimeout(() => {
+      setChatFocus('');
+    }, 3000);
   };
 
   return (
@@ -235,8 +264,7 @@ export default function Personal() {
       <ScrollArea
         type="scroll"
         scrollbarSize={6}
-        offsetScrollbars
-        className="flex-1 px-5 [&>div>div>div:first-child]:pt-5 h-max"
+        className="flex-1 [&>div>div>div:first-child]:pt-5 h-max"
         viewportRef={viewport}>
         {Object.entries(messagesByDay).map(([timestamp, messages]) => {
           const messageDay = new Date(Number(timestamp));
@@ -261,16 +289,23 @@ export default function Personal() {
                 </div>
               </div>
               {messages.map((message, index) => (
-                <BallonChat
-                  varian={message.user_id === user?.id ? 'right' : 'left'}
+                <div
                   key={index}
-                  chat={message}
-                />
+                  id={`chat-${message.id}`}
+                  className={cn('py-4 px-5', {
+                    'bg-gray-100': chatFocus === message.id,
+                  })}>
+                  {message.user_id !== user?.id ? (
+                    <LeftChat chat={message} scrollToChat={scrollToChat} />
+                  ) : (
+                    <RightChat chat={message} scrollToChat={scrollToChat} />
+                  )}
+                </div>
               ))}
             </div>
           );
         })}
-        {isLoading && (
+        {isLoading && chatsRealtime.length === 0 && (
           <Loader
             color="dark"
             size="sm"
@@ -286,6 +321,62 @@ export default function Personal() {
             overlayBlur={2}
             loader={<Loader color="dark" size="xs" variant="oval" />}
           />
+          {reply.chat && (
+            <div
+              className="p-4 rounded-lg border border-gray-200 bg-white/50 flex flex-col gap-4 relative z-10 backdrop-blur-md cursor-pointer hover:shadow-md transition-all duration-300"
+              onClick={() => scrollToChat(reply.chat?.id || '')}>
+              <div
+                className="absolute -right-3 -top-3"
+                onClick={(e: React.SyntheticEvent) => {
+                  e.stopPropagation();
+                  dispatch(resetReply());
+                }}>
+                <TooltipComp label="Delete">
+                  <Button variant="outline" className="w-max text-red-600">
+                    <HiOutlineTrash size={20} />
+                  </Button>
+                </TooltipComp>
+              </div>
+              <div className="flex items-center gap-3">
+                {reply.chat?.content?.type === 'picture' && (
+                  <LazyLoadImage
+                    alt="foto"
+                    effect="blur"
+                    width={50}
+                    height={50}
+                    src={reply.chat.content?.data as string}
+                    className="rounded-lg bg-gray-200 h-full object-cover shadow-md"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                <div>
+                  <h1 className="text-[15px] font-medium">
+                    {reply.chat.user_id === user?.id ? 'You' : reply.chat.name}
+                  </h1>
+                  <div className="flex items-center justify-start w-full gap-1 text-gray-500">
+                    {reply.chat?.content?.type === 'picture' && (
+                      <LuImage size={13} />
+                    )}
+                    {reply.chat?.content?.type === 'openai' && (
+                      <SiOpenai size={13} />
+                    )}
+                    <p
+                      className={cn(
+                        'whitespace-nowrap text-[12px] overflow-hidden overflow-ellipsis sm:max-w-[150px] max-w-[120px] max-h-[50px]',
+                        {
+                          capitalize:
+                            !reply.chat.message && reply.chat?.content,
+                        }
+                      )}>
+                      {!reply.chat.message && reply.chat?.content
+                        ? reply.chat?.content?.type
+                        : reply.chat.message}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {openaiContent.result && (
             <div className="p-5 rounded-lg border border-gray-200 bg-white/50 flex flex-col gap-4 relative z-10 backdrop-blur-md">
               <div className="absolute -right-3 -top-3">
@@ -357,7 +448,7 @@ export default function Personal() {
                 }
               />
             </TooltipComp>
-            <TooltipComp label="Coding">
+            {/* <TooltipComp label="Coding">
               <Button
                 variant="outline"
                 className="w-max"
@@ -367,7 +458,7 @@ export default function Personal() {
                 }>
                 <BiCodeAlt size={20} />
               </Button>
-            </TooltipComp>
+            </TooltipComp> */}
             <TooltipComp label="OpenAi">
               <ModalGenerateOpenAi>
                 <Button
