@@ -7,6 +7,7 @@ import Personal from '@/pages/Personal';
 import Profile from '@/pages/Profile';
 import GuestMiddleware from '@/middlewares/GuestMiddleware';
 import NewPersonal from '@/pages/NewPersonal';
+import EditProfile from '@/pages/EditProfile';
 
 type DataRouteType = {
   path: string;
@@ -34,6 +35,11 @@ export default function Root() {
     {
       path: '/profile',
       element: <Profile />,
+      middleware: 'user',
+    },
+    {
+      path: '/profile/edit',
+      element: <EditProfile />,
       middleware: 'user',
     },
     {
