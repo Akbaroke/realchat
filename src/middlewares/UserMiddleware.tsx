@@ -1,5 +1,6 @@
 import { auth } from '@/config/firebase';
 import getProfile from '@/services/getProfile';
+import setLimitOpenai from '@/services/setLimitOpenai';
 import { RootState } from '@/store';
 import { UserType, login } from '@/store/slices/authSlice';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -25,6 +26,7 @@ export default function UserMiddleware({ children }: Props) {
             dispatch(login(data as unknown as UserType));
           }
         });
+        setLimitOpenai(user.uid);
       }
     });
   }, [dispatch]);

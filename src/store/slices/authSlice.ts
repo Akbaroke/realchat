@@ -5,12 +5,18 @@ interface AuthState {
   user: UserType | null;
 }
 
+export type LimitOpenaiType = {
+  count: number;
+  date: number;
+};
+
 export interface UserType {
   id: string;
   name: string;
   email: string;
   bio?: string;
   foto?: string;
+  limitOpenai?: LimitOpenaiType;
 }
 
 const initialState: AuthState = {

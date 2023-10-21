@@ -14,11 +14,15 @@ import { RxCross2 } from 'react-icons/rx';
 import { AiOutlineArrowUp } from 'react-icons/ai';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { TypeAnimation } from 'react-type-animation';
-import openai from '@/config/openai';
-import { BsThreeDotsVertical } from 'react-icons/bs';
+import { BsFillHeartPulseFill, BsThreeDotsVertical } from 'react-icons/bs';
 import { motion as mo } from 'framer-motion';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setOpenai } from '@/store/slices/openaiSlice';
+import cn from '@/utils/cn';
+import requestOpenai from '@/services/requestOpenai';
+import reduceLimitOpenai from '@/services/reduceLimitOpenai';
+import { RootState } from '@/store';
+import useSnapshotLimitOpenai from '@/hooks/useSnapshotLimitOpenai';
 
 type Props = {
   children: React.ReactNode;
@@ -26,6 +30,8 @@ type Props = {
 
 export default function ModalGenerateOpenAi({ children }: Props) {
   const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth);
+  const limitOpenai = useSnapshotLimitOpenai(user?.id || '');
   const [isLoadingTyping, setIsLoadingTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isShowCard, setIsShowCard] = useState(false);
@@ -39,6 +45,7 @@ export default function ModalGenerateOpenAi({ children }: Props) {
   });
   const theme = useMantineTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const disableBtn = limitOpenai > 0 ? false : true;
 
   useEffect(() => {
     if (isLoadingTyping) {
@@ -66,7 +73,7 @@ export default function ModalGenerateOpenAi({ children }: Props) {
   }, [opened]);
 
   const handleQuestiontoOpenAi = async () => {
-    if (inputValue.trim() === '') {
+    if (inputValue.trim() === '' || disableBtn) {
       return;
     }
     setIsLoading(true);
@@ -78,16 +85,8 @@ export default function ModalGenerateOpenAi({ children }: Props) {
     });
     setInputValue('');
     try {
-      const response = await openai.chat.completions.create({
-        messages: [
-          {
-            role: 'user',
-            content: userQuestion + ' berikan jawaban singkat hanya 50 kata',
-          },
-        ],
-        model: 'gpt-3.5-turbo',
-        max_tokens: 100,
-      });
+      const response = await requestOpenai(userQuestion);
+      await reduceLimitOpenai(user?.id || '');
       setOpenAiData({
         question: userQuestion,
         result: response?.choices[0]?.message?.content as string,
@@ -129,19 +128,24 @@ export default function ModalGenerateOpenAi({ children }: Props) {
               }}>
               <div className="bg-white rounded-lg min-w-[300px] max-w-[400px] flex flex-col justify-between">
                 <div className="px-5 py-4 flex gap-4 items-center border-b justify-between">
-                  <div className="flex items-center gap-3">
-                    <LazyLoadImage
-                      alt="foto"
-                      effect="blur"
-                      src={BLACK_OPENAI}
-                      width={30}
-                      height={30}
-                      className="rounded-lg bg-white"
-                    />
-                    <h1 className="font-medium whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[150px]">
-                      Open Ai
-                    </h1>
-                    <div className="flex flex-col"></div>
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-3">
+                      <LazyLoadImage
+                        alt="foto"
+                        effect="blur"
+                        src={BLACK_OPENAI}
+                        width={30}
+                        height={30}
+                        className="rounded-lg bg-white"
+                      />
+                      <h1 className="font-medium whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[150px]">
+                        Open Ai
+                      </h1>
+                    </div>
+                    <div className="flex items-center gap-[3px] text-red-600">
+                      <BsFillHeartPulseFill size={18} />
+                      <p className="text-[16px] font-semibold">{limitOpenai}</p>
+                    </div>
                   </div>
                   <div
                     className="p-2 rounded-md border w-max text-gray-500 cursor-pointer hover:text-black transition-all"
@@ -271,7 +275,15 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                       className="flex-1 px-3"
                     />
                     <button
-                      className="p-3 bg-black text-white rounded-full w-max h-max"
+                      className={cn(
+                        'p-3 bg-black text-white rounded-full w-max h-max',
+                        {
+                          'cursor-not-allowed':
+                            isLoading || isLoadingTyping || disableBtn,
+                          'bg-gray-300': disableBtn,
+                        }
+                      )}
+                      disabled={isLoading || isLoadingTyping || disableBtn}
                       onClick={handleQuestiontoOpenAi}>
                       {isLoading || isLoadingTyping ? (
                         <Loader color="dark" size="xs" />
