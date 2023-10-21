@@ -13,6 +13,7 @@ import { Image } from 'primereact/image';
 import cn from '@/utils/cn';
 import { DEFAULT_FOTO } from '@/assets';
 import { RxCross2 } from 'react-icons/rx';
+import { toastLoading, toastSuccess } from '../atoms/Toast';
 
 type Props = {
   chat: DataChats;
@@ -161,16 +162,24 @@ export default function ModalDeleteMessage({
 
   const handleDeleteMessage = (deletedType: DeletedType) => {
     setIsLoading(true);
+    toastLoading('Delete process...', 'delete-' + chat.id);
     deleteMessage({
       personal_id: chat.personal_id,
       message_id: chat.id,
       user_id: user?.id || '',
       type: deletedType,
       withImage: chat.content?.type === 'picture' ? true : false,
-    }).finally(() => {
-      setIsLoading(false);
-      close();
-    });
+    })
+      .then(() => {
+        toastSuccess('Deleted successful', 'delete-' + chat.id);
+      })
+      .catch(() => {
+        toastSuccess('Deleted failed', 'delete-' + chat.id);
+      })
+      .finally(() => {
+        setIsLoading(false);
+        close();
+      });
   };
 
   return (

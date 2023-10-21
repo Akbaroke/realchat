@@ -23,6 +23,7 @@ import requestOpenai from '@/services/requestOpenai';
 import reduceLimitOpenai from '@/services/reduceLimitOpenai';
 import { RootState } from '@/store';
 import useSnapshotLimitOpenai from '@/hooks/useSnapshotLimitOpenai';
+import { toastError } from '../atoms/Toast';
 
 type Props = {
   children: React.ReactNode;
@@ -283,8 +284,17 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                           'bg-gray-300': disableBtn,
                         }
                       )}
-                      disabled={isLoading || isLoadingTyping || disableBtn}
-                      onClick={handleQuestiontoOpenAi}>
+                      disabled={isLoading || isLoadingTyping}
+                      onClick={
+                        disableBtn
+                          ? () => {
+                              toastError(
+                                'Openai limit has run out, try again tomorrow',
+                                `openai-${new Date().getTime()}`
+                              );
+                            }
+                          : handleQuestiontoOpenAi
+                      }>
                       {isLoading || isLoadingTyping ? (
                         <Loader color="dark" size="xs" />
                       ) : (

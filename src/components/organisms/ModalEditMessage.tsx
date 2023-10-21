@@ -11,9 +11,10 @@ import updateMessage from '@/services/updateMessage';
 import { DataChats } from '@/hooks/useSnapshotChats';
 import { MdOutlineDoNotDisturbAlt } from 'react-icons/md';
 import { Image } from 'primereact/image';
+import { toastError, toastLoading, toastSuccess } from '../atoms/Toast';
 
 type Props = {
-  chat: DataChats
+  chat: DataChats;
   children: React.ReactNode;
   isDisabled?: boolean;
 };
@@ -92,10 +93,18 @@ export default function ModalEditMessage({
 
   const handleUpdateMessage = () => {
     setIsLoadingBtn(true);
-    updateMessage(chat.id, textChat).finally(() => {
-      setIsLoadingBtn(false);
-      close();
-    });
+    toastLoading('Updating message...', 'edit-' + chat.id);
+    updateMessage(chat.id, textChat)
+      .then(() => {
+        toastSuccess('Updating successful', 'edit-' + chat.id);
+      })
+      .catch(() => {
+        toastError('Updating failed', 'edit-' + chat.id);
+      })
+      .finally(() => {
+        setIsLoadingBtn(false);
+        close();
+      });
   };
 
   return (

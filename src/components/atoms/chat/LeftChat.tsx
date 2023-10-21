@@ -17,6 +17,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { Image } from 'primereact/image';
 import downloadImage from '@/utils/downloadImage';
 import getDateTime from '@/utils/getDateTime';
+import { toastError, toastLoading, toastSuccess } from '../Toast';
 
 type Props = {
   chat: DataChats;
@@ -30,6 +31,37 @@ export default function LeftChat({ chat }: Props) {
   const settRef = useClickOutside(() => setIsSett(false));
   const { hovered, ref } = useHover();
   const openaiData = chat?.content?.data as OpenAiDataType;
+  const copyOpenAiWithMessage = `Question ~
+${openaiData?.question}
+
+Result ~
+${openaiData?.result}
+
+${chat?.message && 'Message ~'}
+${chat?.message}`;
+
+  const isCopy = (): boolean => {
+    if (chat.content?.type === 'picture' && chat?.message === '') {
+      return false;
+    } else if (chat.isHide) {
+      return false;
+    } else if (chat.deleted_at) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleDownloadImage = () => {
+    const id = getDateTime();
+    toastLoading('Download process...', 'download-' + id);
+    downloadImage(chat.content?.data as string, `RealChat Image ${id}.jpg`)
+      .then(() => {
+        toastSuccess('Downloaded successful', 'download-' + id);
+      })
+      .catch(() => {
+        toastError('Downloaded failed', 'download-' + id);
+      });
+  };
 
   return (
     !isDeletedMe({
@@ -71,7 +103,7 @@ export default function LeftChat({ chat }: Props) {
                     <div
                       className={cn(
                         'px-3 pt-3',
-                        !chat.content && 'hidden',
+                        (!chat.content || chat.isHide) && 'hidden',
                         chat.content?.type === 'openai' &&
                           !chat.message &&
                           'pb-3'
@@ -171,12 +203,27 @@ export default function LeftChat({ chat }: Props) {
                     ? 'w-max -right-[100px]'
                     : 'w-20 -right-[90px]'
                 )}>
-                {chat.message !== '' && (
-                  <CopyButton value={chat.message}>
+                {isCopy() && (
+                  <CopyButton
+                    value={
+                      chat.content?.type === 'openai'
+                        ? copyOpenAiWithMessage
+                        : chat.message
+                    }>
                     {({ copied, copy }) => (
                       <mo.li
                         variants={itemVariants}
-                        onClick={chat?.deleted_at ? () => {} : copy}
+                        onClick={
+                          chat?.deleted_at
+                            ? () => {}
+                            : () => {
+                                copy();
+                                toastSuccess(
+                                  'Copied to clipboard',
+                                  'copy-' + new Date().getTime()
+                                );
+                              }
+                        }
                         className={cn(
                           'rounded-lg py-1 px-2 cursor-pointer',
                           chat?.deleted_at
@@ -191,11 +238,7 @@ export default function LeftChat({ chat }: Props) {
                 {chat?.content?.type === 'picture' && (
                   <mo.li
                     variants={itemVariants}
-                    onClick={() =>
-                      downloadImage(
-                        chat.content?.data as string,
-                        `RealChat Image ${getDateTime()}.jpg`
-                      )
+                    onClick={!chat?.deleted_at ?  handleDownloadImage : () => null
                     }
                     className={cn(
                       'rounded-lg py-1 px-2 cursor-pointer',

@@ -19,6 +19,7 @@ import downloadImage from '@/utils/downloadImage';
 import getDateTime from '@/utils/getDateTime';
 import { BLACK_OPENAI } from '@/assets';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { toastError, toastLoading, toastSuccess } from '../Toast';
 
 type Props = {
   chat: DataChats;
@@ -48,13 +49,44 @@ export default function RightChat({ chat }: Props) {
   const isHideble = (): boolean => {
     const chatCreatedAt = chat.created_at;
     const currentTimeSeconds = Math.floor(new Date().getTime() / 1000.0);
-    const threeDayInSeconds = 3 * 24 * 60 * 60; // 7 hari dalam detik
+    const threeDayInSeconds = 3 * 24 * 60 * 60; // 3 hari dalam detik
     const waktuEditeble = chatCreatedAt + threeDayInSeconds;
 
     return currentTimeSeconds > waktuEditeble;
   };
 
+  const isCopy = (): boolean => {
+    if (chat.content?.type === 'picture' && chat?.message === '') {
+      return false;
+    } else if (chat.isHide) {
+      return false;
+    } else if (chat.deleted_at) {
+      return false;
+    }
+    return true;
+  };
+
   const openaiData = chat?.content?.data as OpenAiDataType;
+  const copyOpenAiWithMessage = `Question ~
+${openaiData?.question}
+
+Result ~
+${openaiData?.result}
+
+${chat?.message && 'Message ~'}
+${chat?.message}`;
+
+  const handleDownloadImage = () => {
+    const id = getDateTime();
+    toastLoading('Download process...', 'download-' + id);
+    downloadImage(chat.content?.data as string, `RealChat Image ${id}.jpg`)
+      .then(() => {
+        toastSuccess('Downloaded successful', 'download-' + id);
+      })
+      .catch(() => {
+        toastError('Downloaded failed', 'download-' + id);
+      });
+  };
 
   return (
     !isDeletedMe({
@@ -80,7 +112,7 @@ export default function RightChat({ chat }: Props) {
                   <div
                     className={cn(
                       'px-3 pt-3',
-                      !chat.content && 'hidden',
+                      (!chat.content || chat.isHide) && 'hidden',
                       chat.content?.type === 'openai' && !chat.message && 'pb-3'
                     )}>
                     {!isMessageHide && chat.content?.type === 'picture' && (
@@ -177,12 +209,27 @@ export default function RightChat({ chat }: Props) {
                   ? 'w-max -left-[100px]'
                   : 'w-20 -left-[90px]'
               )}>
-              {chat.message !== '' && (
-                <CopyButton value={chat.message}>
+              {isCopy() && (
+                <CopyButton
+                  value={
+                    chat.content?.type === 'openai'
+                      ? copyOpenAiWithMessage
+                      : chat.message
+                  }>
                   {({ copied, copy }) => (
                     <mo.li
                       variants={itemVariants}
-                      onClick={chat?.deleted_at ? () => {} : copy}
+                      onClick={
+                        chat?.deleted_at
+                          ? () => {}
+                          : () => {
+                              copy();
+                              toastSuccess(
+                                'Copied to clipboard',
+                                'copy-' + new Date().getTime()
+                              );
+                            }
+                      }
                       className={cn(
                         'rounded-lg py-1 px-2 cursor-pointer',
                         chat?.deleted_at
@@ -197,12 +244,7 @@ export default function RightChat({ chat }: Props) {
               {chat?.content?.type === 'picture' && (
                 <mo.li
                   variants={itemVariants}
-                  onClick={() =>
-                    downloadImage(
-                      chat.content?.data as string,
-                      `RealChat Image ${getDateTime()}.jpg`
-                    )
-                  }
+                  onClick={!chat?.deleted_at ? handleDownloadImage : () => null}
                   className={cn(
                     'rounded-lg py-1 px-2 cursor-pointer',
                     chat?.deleted_at
