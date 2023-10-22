@@ -7,7 +7,7 @@ import LinkNewChat from '@/components/atoms/LinkNewChat';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { resetPersonal } from '@/store/slices/personalSlice';
-import { LOGOTEXT_REALCHAT } from '@/assets';
+import { LOGOTEXT_REALCHAT } from '../assets';
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -22,7 +22,7 @@ export default function Home() {
       <div className="flex items-center justify-between p-5">
         <img
           src={LOGOTEXT_REALCHAT}
-          alt="RearChat"
+          alt="RealChat"
           width={100}
           className="cursor-pointer"
           onClick={() => window.location.reload()}
