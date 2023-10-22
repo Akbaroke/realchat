@@ -1,10 +1,11 @@
+import LoadingView from '@/components/views/LoadingView';
 import { auth } from '@/config/firebase';
 import getProfile from '@/services/getProfile';
 import setLimitOpenai from '@/services/setLimitOpenai';
 import { RootState } from '@/store';
 import { UserType, login } from '@/store/slices/authSlice';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
 
@@ -15,10 +16,12 @@ type Props = {
 export default function UserMiddleware({ children }: Props) {
   const dispatch = useDispatch();
   const { isLoggedIn } = useSelector((state: RootState) => state.auth);
+  const [isLoading, setIsLoading] = useState(false);
 
   const location = useLocation();
 
   useEffect(() => {
+    setIsLoading(true);
     onAuthStateChanged(auth, (user) => {
       if (user) {
         getProfile(user.uid).then((data) => {
@@ -28,6 +31,7 @@ export default function UserMiddleware({ children }: Props) {
         });
         setLimitOpenai(user.uid);
       }
+      setIsLoading(false);
     });
   }, [dispatch]);
 
@@ -35,5 +39,10 @@ export default function UserMiddleware({ children }: Props) {
     return <Navigate to="/signin" state={{ from: location }} replace={true} />;
   }
 
-  return children;
+  return (
+    <>
+      {isLoading && <LoadingView />}
+      {children}
+    </>
+  );
 }

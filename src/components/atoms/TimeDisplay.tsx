@@ -34,7 +34,7 @@ const TimeDisplay: React.FC<Props> = ({ time, className, isTimeOnly }) => {
         } else if (difference >= 86400) {
           // Lebih dari 1 hari
           const dayName = date.toLocaleDateString('en-US', {
-            weekday: 'short',
+            weekday: 'long',
           });
           setFormattedTime(dayName);
         } else if (difference >= 60) {
