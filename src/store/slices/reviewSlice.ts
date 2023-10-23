@@ -12,7 +12,15 @@ export interface Review {
   datetime: number;
 }
 
-const initialState: Review[] = [];
+interface InitialState {
+  isLoading: boolean;
+  reviews: Review[];
+}
+
+const initialState: InitialState = {
+  isLoading: false,
+  reviews: [],
+};
 
 export const fetchReviews = createAsyncThunk(
   'review/fetchReviews',
@@ -27,9 +35,17 @@ const reviewSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers(builder) {
-    builder.addCase(fetchReviews.fulfilled, (_, action) => {
-      return action.payload;
-    });
+    builder
+      .addCase(fetchReviews.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchReviews.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.reviews = action.payload;
+      })
+      .addCase(fetchReviews.rejected, (state) => {
+        state.isLoading = false;
+      });
   },
 });
 

@@ -51,7 +51,7 @@ export default function About() {
         <img
           src={LOGO_REALCHAT}
           alt="realchat"
-          className="w-3h-36 h-36 shadow-xl w-max rounded-full m-auto"
+          className="w-36 h-36 shadow-xl rounded-full m-auto"
         />
         <div className="flex flex-col gap-2">
           <h1 className="font-semibold inline-block py-1 pr-8 border-b-2 border-black w-max">

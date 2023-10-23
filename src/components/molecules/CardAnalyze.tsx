@@ -2,16 +2,25 @@ import { AnalysisResult } from '@/utils/analyzeReviews';
 import { Progress, Rating } from '@mantine/core';
 import ModalRateApplication from '../organisms/ModalRateApplication';
 import Button from '../atoms/Button';
+import { LOGO_REALCHAT } from '@/assets';
 
 type Props = {
   analyze: AnalysisResult;
   isAlreadyRate: boolean;
+  isLoading?: boolean;
 };
 
-export default function CardAnalyze({ analyze, isAlreadyRate }: Props) {
+export default function CardAnalyze({
+  analyze,
+  isAlreadyRate,
+  isLoading,
+}: Props) {
   return (
     <div className="p-8 px-10 max-w-[350px] m-auto rounded-lg shadow-xl bg-white shadow-gray-100 text-center">
-      <h1 className="font-semibold text-[18px]">User reviews</h1>
+      <div className="flex flex-col justify-center items-center gap-4">
+        <img src={LOGO_REALCHAT} alt="realchat" className="w-28 h-28w-28" />
+        <h1 className="font-semibold text-[16px] italic">Rate this App</h1>
+      </div>
       <div className="flex flex-col items-center gap-2 mt-3">
         <div className="flex items-center justify-center gap-3 rounded-3xl bg-gray-100 px-5 py-3">
           <Rating value={analyze.meanRate} fractions={3} readOnly />
@@ -70,7 +79,9 @@ export default function CardAnalyze({ analyze, isAlreadyRate }: Props) {
       </div>
       {!isAlreadyRate && (
         <ModalRateApplication>
-          <Button className="w-max px-5 mt-10">Rate Now</Button>
+          <Button className="w-max px-5 mt-10" isLoading={isLoading}>
+            Rate Now
+          </Button>
         </ModalRateApplication>
       )}
     </div>

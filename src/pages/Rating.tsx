@@ -9,12 +9,15 @@ import analyzeReviews from '@/utils/analyzeReviews';
 import { motion } from 'framer-motion';
 import CardAnalyze from '@/components/molecules/CardAnalyze';
 import ModalRateApplication from '@/components/organisms/ModalRateApplication';
+import { Loader, Transition } from '@mantine/core';
 
 export default function Rating() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
-  const reviews = useSelector((state: RootState) => state.reviews);
+  const { isLoading, reviews } = useSelector(
+    (state: RootState) => state.reviews
+  );
   const [isAlreadyRate, setIsAlreadyRate] = useState(true);
   const analyze = analyzeReviews(reviews);
 
@@ -45,19 +48,38 @@ export default function Rating() {
         <h1 className="font-semibold">Rating</h1>
       </div>
       <div className="p-5">
-        <CardAnalyze isAlreadyRate={isAlreadyRate} analyze={analyze} />
+        <CardAnalyze
+          isAlreadyRate={isAlreadyRate}
+          analyze={analyze}
+          isLoading={isLoading}
+        />
         <div className="mt-10 sm:p-5 p-0">
-          {sortedReviews.map((review, index) => (
-            <motion.div
-              initial={{ opacity: 0, transform: 'translateY(50px)' }}
-              animate={{ opacity: 1, transform: 'translateY(0px)' }}
-              transition={{ delay: index * 0.3, duration: 0.3 }}
-              key={review.id}>
-              <ModalRateApplication review={review}>
-                <CardRating review={review} />
-              </ModalRateApplication>
-            </motion.div>
-          ))}
+          <h1 className="font-semibold inline-block mb-2 py-1 pr-8 border-b-2 border-black w-max">
+            User Reviews
+          </h1>
+          {!isLoading &&
+            sortedReviews.map((review, index) => (
+              <motion.div
+                initial={{ opacity: 0, transform: 'translateY(50px)' }}
+                animate={{ opacity: 1, transform: 'translateY(0px)' }}
+                transition={{ delay: index * 0.3, duration: 0.3 }}
+                key={review.id}>
+                <ModalRateApplication review={review}>
+                  <CardRating review={review} />
+                </ModalRateApplication>
+              </motion.div>
+            ))}
+          <Transition
+            mounted={isLoading}
+            transition="slide-up"
+            duration={400}
+            timingFunction="ease">
+            {(styles) => (
+              <div className="grid place-items-center my-10 z-0" style={styles}>
+                <Loader color="dark" size="sm" variant="dots" />
+              </div>
+            )}
+          </Transition>
         </div>
       </div>
     </div>
