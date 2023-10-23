@@ -42,7 +42,7 @@ export default function NewPersonal() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center px-5 py-3 border-b-2 sticky top-0 gap-5">
+      <div className="flex items-center px-5 py-3 border-b sticky top-0 gap-5">
         <div
           className="p-2 rounded-md border w-max text-gray-500 cursor-pointer hover:text-black transition-all"
           onClick={() => navigate('/')}>
