@@ -17,6 +17,7 @@ import ModalProfilePicture from '@/components/organisms/ModalProfilePicture';
 import updateProfile from '@/services/updateProfile';
 import { useEffect, useState } from 'react';
 import { DEFAULT_FOTO } from '@/assets';
+import validator from 'validator';
 
 type FormType = {
   name: string;
@@ -40,7 +41,12 @@ export default function EditProfile() {
     },
     validate: {
       name: (value) =>
-        value.length < 8 ? 'Name must be at least 8 characters.' : null,
+        value.length < 8
+          ? 'Name must be at least 8 characters.'
+          : !validator.isAlpha(validator.blacklist(value, ' ')) ||
+            validator.trim(value).replace(/\s+/g, ' ') !== value
+          ? 'The name cannot contain only spaces.'
+          : null,
     },
   });
 
@@ -94,11 +100,11 @@ export default function EditProfile() {
         </div>
         <div className="p-5">
           <div className="m-auto w-max relative">
-            <ModalProfilePicture imgSrc={user?.foto}>
+            <ModalProfilePicture imgSrc={user?.foto ?? DEFAULT_FOTO}>
               <LazyLoadImage
                 alt="foto"
                 effect="blur"
-                src={user?.foto || DEFAULT_FOTO}
+                src={user?.foto ?? DEFAULT_FOTO}
                 className="w-28 h-28 rounded-full bg-gray-200"
                 referrerPolicy="no-referrer"
               />
@@ -109,6 +115,7 @@ export default function EditProfile() {
             label="Name"
             type="text"
             placeholder="Enter your name"
+            maxLength={35}
             value={form.values.name}
             errorLabel={form.errors.name as string}
             onChange={(e) => form.setFieldValue('name', e as string)}
@@ -119,6 +126,7 @@ export default function EditProfile() {
             type="text"
             placeholder="Enter your bio"
             value={form.values.bio}
+            maxLength={50}
             errorLabel={form.errors.bio as string}
             onChange={(e) => form.setFieldValue('bio', e as string)}
           />
