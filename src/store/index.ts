@@ -15,9 +15,9 @@ export const store = configureStore({
   },
 });
 
-store.subscribe(() => {
-  console.log('store change:', store.getState());
-});
+// store.subscribe(() => {
+//   console.log('store change:', store.getState());
+// });
 
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
