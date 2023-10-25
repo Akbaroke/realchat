@@ -10,8 +10,8 @@ export default function LinkNewChat() {
   return (
     <Link
       to="/personal"
-      className={cn({
-        'p-3 rounded-2xl bg-black text-white w-max fixed bottom-5 right-5 float-right':
+      className={cn('', {
+        'p-3 rounded-2xl bg-black text-white w-max fixed z-20 bottom-5 right-5 float-right':
           matches,
         'p-2 rounded-lg border': !matches,
       })}>
