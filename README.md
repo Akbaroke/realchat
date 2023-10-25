@@ -2,7 +2,7 @@
   <a href="https://realchat-2023.vercel.app">
     <img src="./public/realchat.svg" alt="Logo" width="300">
   </a>
-  <h2 style="font-size:30px;" align="center"><strong>Chichat</strong></h2>
+  <h2 style="font-size:30px;" align="center"><strong>RealChat</strong></h2>
   <p align="center">
     <a href="https://github.com/Akbaroke/realchat/issues">Report Bug</a>
     ·
