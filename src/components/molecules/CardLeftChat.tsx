@@ -70,7 +70,7 @@ export default function CardLeftChat({ chat, scrollToChat }: Props) {
           <LazyLoadImage
             alt="foto"
             effect="blur"
-            src={chat.foto ?? DEFAULT_FOTO}
+            src={chat.foto || DEFAULT_FOTO}
             referrerPolicy="no-referrer"
             width={30}
             height={30}
