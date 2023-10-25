@@ -140,11 +140,19 @@ export default function ModalRateApplication({ review, children }: Props) {
                 <div className="p-5 flex flex-col gap-5 text-center">
                   <div className="flex flex-col gap-3">
                     <ModalProfilePicture
-                      imgSrc={review ? review.foto : user?.foto}>
+                      imgSrc={
+                        review
+                          ? review.foto || DEFAULT_FOTO
+                          : user?.foto || DEFAULT_FOTO
+                      }>
                       <LazyLoadImage
                         alt="foto"
                         effect="blur"
-                        src={review ? review.foto : user?.foto || DEFAULT_FOTO}
+                        src={
+                          review
+                            ? review.foto || DEFAULT_FOTO
+                            : user?.foto || DEFAULT_FOTO
+                        }
                         className="w-16 h-16 rounded-full bg-gray-200"
                       />
                     </ModalProfilePicture>
