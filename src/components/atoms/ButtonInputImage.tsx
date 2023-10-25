@@ -1,7 +1,10 @@
-import { LuImage } from 'react-icons/lu';
-import Button from './Button';
-import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { useEffect, useState } from 'react';
+
+import { LuImage } from 'react-icons/lu';
+
+import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
+
+import Button from './Button';
 import { toastError } from './Toast';
 
 export type ImageType = {

@@ -7,7 +7,7 @@ import { Review } from '@/store/slices/reviewSlice';
 export default function CardRating({ review }: { review: Review }) {
   return (
     <div className="flex items-center justify-between border-b py-5 border-gray-100">
-      <div className="flex items-center gap-4 flex-1">
+      <div className="flex items-center gap-4">
         <LazyLoadImage
           alt="foto"
           effect="blur"
@@ -15,7 +15,9 @@ export default function CardRating({ review }: { review: Review }) {
           className="w-12 h-12 rounded-full bg-gray-200"
         />
         <div className="flex flex-col items-start gap-1">
-          <h1 className="font-semibold text-[14px]">{review.name}</h1>
+          <h1 className="font-semibold text-[14px] overflow-ellipsis overflow-hidden whitespace-nowrap sm:max-w-[250px] max-w-[120px]">
+            {review.name}
+          </h1>
           <p className="text-[14px] text-gray-500 overflow-ellipsis overflow-hidden whitespace-nowrap sm:max-w-[200px] max-w-[120px]">
             {review.comment}
           </p>

@@ -1,6 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiChevronLeft, FiRefreshCcw } from 'react-icons/fi';
-// import { BiCodeAlt } from 'react-icons/bi';
 import { HiOutlineTrash } from 'react-icons/hi';
 import { RiOpenaiFill } from 'react-icons/ri';
 import { BsThreeDotsVertical } from 'react-icons/bs';
@@ -35,8 +34,12 @@ import checkValidatePersonal from '@/services/checkValidatePersonal';
 import { resetReply } from '@/store/slices/replySlice';
 import { LuImage } from 'react-icons/lu';
 import { SiOpenai } from 'react-icons/si';
-import LeftChat from '@/components/atoms/chat/LeftChat';
-import RightChat from '@/components/atoms/chat/RightChat';
+import CardLeftChat from '@/components/molecules/CardLeftChat';
+import CardRightChat from '@/components/molecules/CardRightChat';
+import sortMessageByDate, {
+  isSameDay,
+  todayTimestamp,
+} from '@/utils/sortMessageByDate';
 
 export default function Personal() {
   const navigate = useNavigate();
@@ -66,7 +69,7 @@ export default function Personal() {
   }, []);
 
   useEffect(() => {
-    if(personal.personal_id === ''){
+    if (personal.personal_id === '') {
       if (user?.id && id) {
         checkValidatePersonal(user?.id, id).then((res) => {
           if (!res) {
@@ -109,7 +112,11 @@ export default function Personal() {
   }, [openaiContent]);
 
   useEffect(() => {
-    if (chatsRealtime && user?.id && chatsRealtime.length !== oldChatsData.length) {
+    if (
+      chatsRealtime &&
+      user?.id &&
+      chatsRealtime.length !== oldChatsData.length
+    ) {
       viewport?.current?.scrollTo({
         top: viewport.current.scrollHeight,
         behavior: 'smooth',
@@ -118,39 +125,6 @@ export default function Personal() {
       setOldChatsData(chatsRealtime);
     }
   }, [chatsRealtime, oldChatsData.length, user?.id]);
-
-  // Mengambil timestamp untuk hari ini
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayTimestamp = today.getTime();
-
-  // Mendefinisikan fungsi untuk membandingkan tanggal pesan chat
-  const isSameDay = (timestamp1: number, timestamp2: number): boolean => {
-    const date1 = new Date(timestamp1);
-    const date2 = new Date(timestamp2);
-    return (
-      date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate()
-    );
-  };
-
-  // Mengurutkan pesan chat berdasarkan tanggal terbaru
-  const sortedMessages =
-    chatsRealtime?.sort((a, b) => a.created_at - b.created_at) || [];
-
-  // Memisahkan pesan chat berdasarkan tanggal
-  const messagesByDay: Record<number, typeof sortedMessages> = {};
-  sortedMessages.forEach((message) => {
-    const timestamp = message.created_at;
-    const messageDay = new Date(timestamp * 1000.0);
-    messageDay.setHours(0, 0, 0, 0);
-    const messageDayTimestamp = messageDay.getTime();
-    if (!messagesByDay[messageDayTimestamp]) {
-      messagesByDay[messageDayTimestamp] = [];
-    }
-    messagesByDay[messageDayTimestamp].push(message);
-  });
 
   const foto = dataFriend?.foto || personal.foto || fried?.foto || DEFAULT_FOTO;
   const isDisableSend =
@@ -188,7 +162,7 @@ export default function Personal() {
       personal_id: id || '',
       user_id: user?.id || '',
       message: textChat,
-      reply: reply.chat?.id || ''
+      reply: reply.chat?.id || '',
     };
     const data2: DataMessage = {
       id: chat_id,
@@ -228,6 +202,8 @@ export default function Personal() {
     }, 3000);
   };
 
+  const messagesByDay = sortMessageByDate(chatsRealtime);
+
   return (
     <div className="h-screen flex flex-col justify-between">
       <div className="flex justify-between items-center p-5 border-b bg-white">
@@ -259,7 +235,7 @@ export default function Personal() {
             </div>
           </div>
         </div>
-        <BsThreeDotsVertical size={16} />
+        <BsThreeDotsVertical size={16} className="hidden" />
       </div>
       <ScrollArea
         type="scroll"
@@ -268,7 +244,7 @@ export default function Personal() {
         viewportRef={viewport}>
         {Object.entries(messagesByDay).map(([timestamp, messages]) => {
           const messageDay = new Date(Number(timestamp));
-          const isToday = isSameDay(todayTimestamp, Number(timestamp));
+          const isToday = isSameDay(todayTimestamp(), Number(timestamp));
           const dateText = isToday
             ? 'Today'
             : messageDay.toLocaleDateString('en-US', {
@@ -296,9 +272,9 @@ export default function Personal() {
                     'bg-gray-100': chatFocus === message.id,
                   })}>
                   {message.user_id !== user?.id ? (
-                    <LeftChat chat={message} scrollToChat={scrollToChat} />
+                    <CardLeftChat chat={message} scrollToChat={scrollToChat} />
                   ) : (
-                    <RightChat chat={message} scrollToChat={scrollToChat} />
+                    <CardRightChat chat={message} scrollToChat={scrollToChat} />
                   )}
                 </div>
               ))}
@@ -448,17 +424,6 @@ export default function Personal() {
                 }
               />
             </TooltipComp>
-            {/* <TooltipComp label="Coding">
-              <Button
-                variant="outline"
-                className="w-max"
-                isDisabled={
-                  (content?.type !== 'coding' && !!content?.type) ||
-                  isLoadingBtn
-                }>
-                <BiCodeAlt size={20} />
-              </Button>
-            </TooltipComp> */}
             <TooltipComp label="OpenAi">
               <ModalGenerateOpenAi>
                 <Button
