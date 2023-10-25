@@ -52,7 +52,9 @@ export default function CardRoom({ room }: Props) {
       />
       <div className="grid grid-cols-3 w-full">
         <div className="flex flex-col col-span-2">
-          <h1 className="text-[15px] font-medium">{users?.name}</h1>
+          <h1 className="text-[15px] font-medium overflow-ellipsis overflow-hidden whitespace-nowrap sm:max-w-[250px] max-w-[120px]">
+            {users?.name}
+          </h1>
           <div className="flex items-center justify-start w-full gap-1">
             {room?.lastMessage?.content?.type === 'picture' && (
               <LuImage
