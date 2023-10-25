@@ -26,7 +26,7 @@ export default function Profile() {
       </div>
       <div>
         <div className="flex items-center gap-7 p-5 border-b-4 border-gray-100">
-          <ModalProfilePicture imgSrc={user?.foto}>
+          <ModalProfilePicture imgSrc={user?.foto || DEFAULT_FOTO}>
             <LazyLoadImage
               alt="foto"
               effect="blur"

@@ -100,11 +100,11 @@ export default function EditProfile() {
         </div>
         <div className="p-5">
           <div className="m-auto w-max relative">
-            <ModalProfilePicture imgSrc={user?.foto ?? DEFAULT_FOTO}>
+            <ModalProfilePicture imgSrc={user?.foto || DEFAULT_FOTO}>
               <LazyLoadImage
                 alt="foto"
                 effect="blur"
-                src={user?.foto ?? DEFAULT_FOTO}
+                src={user?.foto || DEFAULT_FOTO}
                 className="w-28 h-28 rounded-full bg-gray-200"
                 referrerPolicy="no-referrer"
               />
