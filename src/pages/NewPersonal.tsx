@@ -8,13 +8,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { useDebouncedState } from '@mantine/hooks';
 import getUserDatas, { UserInterface } from '@/services/getUsers';
 import { Loader, Transition } from '@mantine/core';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { PersonalState, setPersonal } from '@/store/slices/personalSlice';
 import { DEFAULT_FOTO } from '@/assets';
+import { RootState } from '@/store';
 
 export default function NewPersonal() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const auth = useSelector((state: RootState) => state.auth);
   const [value, setValue] = useDebouncedState('', 1000);
   const [listUsers, setListUsers] = useState<UserInterface[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,11 +31,13 @@ export default function NewPersonal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  const filteredUsers = listUsers?.filter(
-    (user) =>
-      user.name.toLowerCase().includes(value.toLowerCase()) ||
-      user.email?.toLowerCase().includes(value.toLowerCase())
-  );
+  const filteredUsers = listUsers
+    ?.filter(
+      (user) =>
+        user.name.toLowerCase().includes(value.toLowerCase()) ||
+        user.email?.toLowerCase().includes(value.toLowerCase())
+    )
+    .filter((user) => user.id !== auth.user?.id);
 
   const handleDirectToPersonalRoom = (data: PersonalState) => {
     dispatch(setPersonal(data));
