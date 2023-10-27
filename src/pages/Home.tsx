@@ -8,12 +8,16 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { resetPersonal } from '@/store/slices/personalSlice';
 import { LOGOTEXT_REALCHAT } from '../assets';
+import { resetReply } from '@/store/slices/replySlice';
+import { resetOpenai } from '@/store/slices/openaiSlice';
 
 export default function Home() {
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(resetPersonal());
+    dispatch(resetReply());
+    dispatch(resetOpenai());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
