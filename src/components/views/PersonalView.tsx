@@ -2,7 +2,6 @@ import Search from '@/components/atoms/Search';
 import { useState } from 'react';
 import CardRoom from '../molecules/CardRoom';
 import { motion as mo } from 'framer-motion';
-import useSnapshotPersonal from '@/hooks/useSnapshotPersonal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { UserType } from '@/store/slices/authSlice';
@@ -10,6 +9,7 @@ import { DataChats } from '@/hooks/useSnapshotChats';
 import { Loader } from '@mantine/core';
 
 export interface ListRooms {
+  users_id: string[];
   id: string;
   lastMessage: DataChats;
   countUnread: number;
@@ -19,7 +19,9 @@ export interface ListRooms {
 export default function PersonalView() {
   const { user } = useSelector((state: RootState) => state.auth);
   const [searchValue, setSearchValue] = useState('');
-  const { personalRealtime, isLoading } = useSnapshotPersonal(user?.id || '');
+  const { isLoading, roomsPersonal } = useSelector(
+    (state: RootState) => state.rooms
+  );
 
   const filterRooms = (rooms: ListRooms[], searchValue: string) => {
     return rooms
@@ -43,7 +45,7 @@ export default function PersonalView() {
       });
   };
 
-  const filteredRooms = filterRooms(personalRealtime, searchValue);
+  const filteredRooms = filterRooms(roomsPersonal, searchValue);
 
   return (
     <div className="px-5 flex flex-col gap-5">
@@ -58,7 +60,7 @@ export default function PersonalView() {
             <CardRoom room={room} />
           </mo.div>
         ))}
-        {isLoading && personalRealtime.length === 0 && (
+        {isLoading && roomsPersonal.length === 0 && (
           <Loader color="dark" size="sm" variant="dots" className="m-auto" />
         )}
       </div>

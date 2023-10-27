@@ -17,6 +17,7 @@ export default function NewPersonal() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const auth = useSelector((state: RootState) => state.auth);
+  const { roomsPersonal } = useSelector((state: RootState) => state.rooms);
   const [value, setValue] = useDebouncedState('', 1000);
   const [listUsers, setListUsers] = useState<UserInterface[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +44,13 @@ export default function NewPersonal() {
     dispatch(setPersonal(data));
     navigate(`/personal/${data.personal_id}`);
   };
+
+  const userAlReady = filteredUsers.find((user) =>
+    roomsPersonal?.find((room) => room.users_id.includes(user.id))
+  );
+  const userRoomAlready =
+    userAlReady &&
+    roomsPersonal?.find((room) => room.users_id.includes(userAlReady.id));
 
   return (
     <div className="flex flex-col">
@@ -74,13 +82,15 @@ export default function NewPersonal() {
                   key={index}>
                   <div
                     onClick={() =>
-                      handleDirectToPersonalRoom({
-                        user_id: user.id,
-                        personal_id: uuidv4(),
-                        name: user.name,
-                        email: user.email,
-                        foto: user.foto,
-                      })
+                      !userAlReady
+                        ? handleDirectToPersonalRoom({
+                            user_id: user.id,
+                            personal_id: uuidv4(),
+                            name: user.name,
+                            email: user.email,
+                            foto: user.foto,
+                          })
+                        : navigate(`/personal/${userRoomAlready?.id}`)
                     }
                     className="border-b border-gray-100 py-4 flex gap-3 cursor-pointer">
                     <LazyLoadImage

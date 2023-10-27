@@ -4,6 +4,7 @@ import personalReducer from './slices/personalSlice';
 import openaiSlice from './slices/openaiSlice';
 import replySlice from './slices/replySlice';
 import reviewSlice from './slices/reviewSlice';
+import roomSlice from './slices/roomSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     openai: openaiSlice,
     reply: replySlice,
     reviews: reviewSlice,
+    rooms: roomSlice,
   },
 });
 
