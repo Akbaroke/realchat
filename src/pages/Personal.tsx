@@ -149,7 +149,7 @@ export default function Personal() {
       );
     }
 
-    if (chatsRealtime?.length === 0) {
+    if (chatsRealtime?.length === 0 && personal.personal_id !== '') {
       const dataPersonal: DataNewPersonal = {
         lastMessage: doc(firestore, 'chats', chat_id),
         personal_id: id || '',

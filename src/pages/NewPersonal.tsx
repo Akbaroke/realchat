@@ -40,17 +40,17 @@ export default function NewPersonal() {
     )
     .filter((user) => user.id !== auth.user?.id);
 
-  const handleDirectToPersonalRoom = (data: PersonalState) => {
-    dispatch(setPersonal(data));
-    navigate(`/personal/${data.personal_id}`);
+  const handleDirectToPersonalRoom = (user: PersonalState) => {
+    const userAlReady = roomsPersonal?.find((room) =>
+      room.users_id.includes(user.user_id)
+    );
+    if (!userAlReady) {
+      dispatch(setPersonal(user));
+      navigate(`/personal/${user.personal_id}`);
+    } else {
+      navigate(`/personal/${userAlReady.id}`);
+    }
   };
-
-  const userAlReady = filteredUsers.find((user) =>
-    roomsPersonal?.find((room) => room.users_id.includes(user.id))
-  );
-  const userRoomAlready =
-    userAlReady &&
-    roomsPersonal?.find((room) => room.users_id.includes(userAlReady.id));
 
   return (
     <div className="flex flex-col">
@@ -82,15 +82,11 @@ export default function NewPersonal() {
                   key={index}>
                   <div
                     onClick={() =>
-                      !userAlReady
-                        ? handleDirectToPersonalRoom({
-                            user_id: user.id,
-                            personal_id: uuidv4(),
-                            name: user.name,
-                            email: user.email,
-                            foto: user.foto,
-                          })
-                        : navigate(`/personal/${userRoomAlready?.id}`)
+                      handleDirectToPersonalRoom({
+                        ...user,
+                        user_id: user.id,
+                        personal_id: uuidv4(),
+                      })
                     }
                     className="border-b border-gray-100 py-4 flex gap-3 cursor-pointer">
                     <LazyLoadImage
