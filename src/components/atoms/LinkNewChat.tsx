@@ -1,7 +1,6 @@
 import cn from '@/utils/cn';
 import { useMediaQuery } from '@mantine/hooks';
-import { MdOutlineChat } from 'react-icons/md';
-import { TbPlus } from 'react-icons/tb';
+import { TbMessage2Plus } from 'react-icons/tb';
 import { Link } from 'react-router-dom';
 
 export default function LinkNewChat() {
@@ -15,8 +14,8 @@ export default function LinkNewChat() {
           matches,
         'p-2 rounded-lg border': !matches,
       })}>
-      {matches && <MdOutlineChat size={20} />}
-      {!matches && <TbPlus />}
+      {matches && <TbMessage2Plus size={25} />}
+      {!matches && <TbMessage2Plus />}
     </Link>
   );
 }

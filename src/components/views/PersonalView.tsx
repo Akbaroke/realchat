@@ -6,7 +6,10 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { UserType } from '@/store/slices/authSlice';
 import { DataChats } from '@/hooks/useSnapshotChats';
-import { Loader } from '@mantine/core';
+import { Loader, Transition } from '@mantine/core';
+import { TbMessage2Plus } from 'react-icons/tb';
+import Button from '../atoms/Button';
+import { useNavigate } from 'react-router-dom';
 
 export interface ListRooms {
   users_id: string[];
@@ -17,6 +20,7 @@ export interface ListRooms {
 }
 
 export default function PersonalView() {
+  const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const [searchValue, setSearchValue] = useState('');
   const { isLoading, roomsPersonal } = useSelector(
@@ -49,7 +53,18 @@ export default function PersonalView() {
 
   return (
     <div className="px-5 flex flex-col gap-5">
-      <Search searchValue={searchValue} setSearchValue={setSearchValue} />
+      <Transition
+        mounted={roomsPersonal.length > 0 ? true : false}
+        transition="slide-up"
+        duration={400}
+        timingFunction="ease">
+        {(styles) => (
+          <div style={styles}>
+            <Search searchValue={searchValue} setSearchValue={setSearchValue} />
+          </div>
+        )}
+      </Transition>
+
       <div className="flex flex-col gap-2">
         {filteredRooms?.map((room, index) => (
           <mo.div
@@ -64,6 +79,28 @@ export default function PersonalView() {
           <Loader color="dark" size="sm" variant="dots" className="m-auto" />
         )}
       </div>
+
+      <Transition
+        mounted={roomsPersonal.length === 0 && !isLoading ? true : false}
+        transition="slide-up"
+        duration={400}
+        timingFunction="ease">
+        {(styles) => (
+          <div style={styles}>
+            <div className="flex flex-col gap-8 items-center justify-center h-[300px]">
+              <div className="text-gray-400 flex flex-col justify-center items-center gap-2">
+                <TbMessage2Plus size={30} />
+                <p className="italic text-[14px] font-light">No message yet</p>
+              </div>
+              <Button
+                className="w-max px-5 active:scale-90"
+                onClick={() => navigate('/personal')}>
+                Make Now
+              </Button>
+            </div>
+          </div>
+        )}
+      </Transition>
     </div>
   );
 }
