@@ -17,7 +17,6 @@ import ModalProfilePicture from '@/components/organisms/ModalProfilePicture';
 import updateProfile from '@/services/updateProfile';
 import { useEffect, useState } from 'react';
 import { DEFAULT_FOTO } from '@/assets';
-import validator from 'validator';
 
 type FormType = {
   name: string;
@@ -40,13 +39,23 @@ export default function EditProfile() {
       email: user?.email || '',
     },
     validate: {
-      name: (value) =>
-        value.length < 8
-          ? 'Name must be at least 8 characters.'
-          : !validator.isAlpha(validator.blacklist(value, ' ')) ||
-            validator.trim(value).replace(/\s+/g, ' ') !== value
-          ? 'The name cannot contain only spaces.'
-          : null,
+      name: (value) => {
+        if (value.length < 8) {
+          return 'Name must be at least 8 characters.';
+        }
+
+        const alphaCheck = /^[a-zA-Z]+$/;
+        const trimmedValue = value.trim();
+
+        if (
+          !alphaCheck.test(trimmedValue) ||
+          trimmedValue.replace(/\s+/g, ' ') !== value
+        ) {
+          return 'The name cannot contain only spaces.';
+        }
+
+        return null;
+      },
     },
   });
 
