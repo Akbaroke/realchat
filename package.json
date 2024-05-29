@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/utils": "^1.2.1",
+    "@google/generative-ai": "^0.11.4",
     "@mantine/core": "^6.0.21",
     "@mantine/dropzone": "^6.0.21",
     "@mantine/form": "^6.0.21",

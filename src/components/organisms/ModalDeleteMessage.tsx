@@ -42,6 +42,59 @@ export default function ModalDeleteMessage({
 
   const MessagePreview = () =>
     isChatFriend ? (
+      <div className="flex flex-col gap-1 items-end mb-4">
+        <div className="rounded-xl bg-black sm:max-w-[300px] max-w-[220px]">
+          {!chat?.deleted_at ? (
+            <>
+              <>
+                {!chat.isHide && chat.content?.type === 'picture' && (
+                  <div className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
+                    <Image
+                      src={chat.content.data as string}
+                      alt="image"
+                      width="300"
+                      className="rounded-lg overflow-hidden"
+                      preview
+                    />
+                  </div>
+                )}
+              </>
+              {chat.message && (
+                <p
+                  className={cn(
+                    'text-white sm:max-w-[300px] max-w-[250px] break-words whitespace-pre-line inline-block text-[14px]',
+                    chat.message
+                      ? chat.content?.type === 'picture'
+                        ? chat.isHide
+                          ? 'p-3'
+                          : 'px-3 pb-3'
+                        : 'p-3'
+                      : ''
+                  )}>
+                  {chat.isHide ? '•••••' : chat.message}
+                </p>
+              )}
+              {chat.message === '' && chat.content && chat.isHide && (
+                <p className="text-white text-[14px] p-3">•••••</p>
+              )}
+            </>
+          ) : (
+            <p className="font-light p-3 text-gray-300 italic inline-flex gap-1 items-center sm:text-[14px] text-[12px]">
+              <MdOutlineDoNotDisturbAlt size={18} />
+              Message has been deleted
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <TimeDisplay
+            time={chat.created_at}
+            className="text-[12px] text-gray-400"
+            isTimeOnly={true}
+          />
+          {chat.isRead ? <BsCheckAll size={16} /> : <BsCheck size={16} />}
+        </div>
+      </div>
+    ) : (
       <div className="flex items-end gap-2 mb-4 w-full">
         <img
           alt="foto"
@@ -103,59 +156,6 @@ export default function ModalDeleteMessage({
               isTimeOnly={true}
             />
           </div>
-        </div>
-      </div>
-    ) : (
-      <div className="flex flex-col gap-1 items-end mb-4">
-        <div className="rounded-xl bg-black sm:max-w-[300px] max-w-[220px]">
-          {!chat?.deleted_at ? (
-            <>
-              <>
-                {!chat.isHide && chat.content?.type === 'picture' && (
-                  <div className={cn('p-2', chat.message ? 'pb-0' : 'pb-1')}>
-                    <Image
-                      src={chat.content.data as string}
-                      alt="image"
-                      width="300"
-                      className="rounded-lg overflow-hidden"
-                      preview
-                    />
-                  </div>
-                )}
-              </>
-              {chat.message && (
-                <p
-                  className={cn(
-                    'text-white sm:max-w-[300px] max-w-[250px] break-words whitespace-pre-line inline-block text-[14px]',
-                    chat.message
-                      ? chat.content?.type === 'picture'
-                        ? chat.isHide
-                          ? 'p-3'
-                          : 'px-3 pb-3'
-                        : 'p-3'
-                      : ''
-                  )}>
-                  {chat.isHide ? '•••••' : chat.message}
-                </p>
-              )}
-              {chat.message === '' && chat.content && chat.isHide && (
-                <p className="text-white text-[14px] p-3">•••••</p>
-              )}
-            </>
-          ) : (
-            <p className="font-light p-3 text-gray-300 italic inline-flex gap-1 items-center sm:text-[14px] text-[12px]">
-              <MdOutlineDoNotDisturbAlt size={18} />
-              Message has been deleted
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-1">
-          <TimeDisplay
-            time={chat.created_at}
-            className="text-[12px] text-gray-400"
-            isTimeOnly={true}
-          />
-          {chat.isRead ? <BsCheckAll size={16} /> : <BsCheck size={16} />}
         </div>
       </div>
     );
@@ -222,7 +222,7 @@ export default function ModalDeleteMessage({
                     overlayBlur={2}
                     loader={<Loader color="dark" size="xs" variant="oval" />}
                   />
-                  {!isChatFriend && !(isDeleteble() || chat.deleted_at) && (
+                  {isChatFriend && !(isDeleteble() || chat.deleted_at) && (
                     <p onClick={() => handleDeleteMessage('everyone')}>
                       Delete for everyone
                     </p>

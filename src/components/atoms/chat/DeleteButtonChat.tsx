@@ -1,8 +1,10 @@
 import ModalDeleteMessage from '@/components/organisms/ModalDeleteMessage';
 import { DataChats } from '@/hooks/useSnapshotChats';
+import { RootState } from '@/store';
 import cn from '@/utils/cn';
 import { Variants } from 'framer-motion';
 import { motion } from 'framer-motion';
+import { useSelector } from 'react-redux';
 
 type Props = {
   chat: DataChats;
@@ -15,8 +17,10 @@ export default function DeleteButtonChat({
   varian,
   itemVariants,
 }: Props) {
+  const { user } = useSelector((state: RootState) => state.auth);
+
   return (
-    <ModalDeleteMessage chat={chat}>
+    <ModalDeleteMessage chat={chat} isChatFriend={chat.user_id === user?.id}>
       <motion.li
         variants={itemVariants}
         className={cn(
