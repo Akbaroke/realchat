@@ -424,7 +424,7 @@ export default function Personal() {
                 }
               />
             </TooltipComp>
-            <TooltipComp label="OpenAi">
+            <TooltipComp label="Gemini AI">
               <ModalGenerateOpenAi>
                 <Button
                   variant="outline"
