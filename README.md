@@ -24,6 +24,7 @@ Welcome to RealChat, a revolutionary platform to simplify communication between 
 - Typescript
 - Redux
 - Firebase
+- Generative Gemini AI
 
 <br/>
 
