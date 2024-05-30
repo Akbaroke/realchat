@@ -11,7 +11,7 @@ import { DEFAULT_FOTO } from '@/assets';
 import { GrFormEdit } from 'react-icons/gr';
 import isDeletedMe from '@/utils/isDeletedMe';
 import { LuImage } from 'react-icons/lu';
-import { SiOpenai } from 'react-icons/si';
+import { RiRobot2Line } from 'react-icons/ri';
 
 type Props = {
   room: ListRooms;
@@ -64,8 +64,8 @@ export default function CardRoom({ room }: Props) {
                 })}
               />
             )}
-            {room?.lastMessage?.content?.type === 'openai' && (
-              <SiOpenai
+            {room?.lastMessage?.content?.type === 'generateAI' && (
+              <RiRobot2Line
                 size={13}
                 className={cn({
                   'text-gray-400': room?.countUnread === 0,

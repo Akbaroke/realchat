@@ -1,4 +1,3 @@
-import { BLACK_OPENAI } from '@/assets';
 import {
   CopyButton,
   Loader,
@@ -12,15 +11,14 @@ import { Variants, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { RxCross2 } from 'react-icons/rx';
 import { AiOutlineArrowUp } from 'react-icons/ai';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { TypeAnimation } from 'react-type-animation';
 import { BsFillHeartPulseFill, BsThreeDotsVertical } from 'react-icons/bs';
+import { RiRobot2Line } from 'react-icons/ri';
 import { motion as mo } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { setOpenai } from '@/store/slices/openaiSlice';
 import cn from '@/utils/cn';
-// import requestOpenai from '@/services/requestOpenai';
-import reduceLimitOpenai from '@/services/reduceLimitOpenai';
+import reduceLimitGenerateAI from '@/services/reduceLimitGenerateAI';
 import { RootState } from '@/store';
 import useSnapshotLimitOpenai from '@/hooks/useSnapshotLimitOpenai';
 import { toastError } from '../atoms/Toast';
@@ -30,7 +28,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export default function ModalGenerateOpenAi({ children }: Props) {
+export default function ModalGenerateAI({ children }: Props) {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const limitOpenai = useSnapshotLimitOpenai(user?.id || '');
@@ -87,15 +85,8 @@ export default function ModalGenerateOpenAi({ children }: Props) {
     });
     setInputValue('');
     try {
-      // const response = await requestOpenai(userQuestion);
-      // await reduceLimitOpenai(user?.id || '');
-      // setOpenAiData({
-      //   question: userQuestion,
-      //   result: response?.choices[0]?.message?.content as string,
-      // });
-
       const response = await requestGeminiai(userQuestion);
-      await reduceLimitOpenai(user?.id || '');
+      await reduceLimitGenerateAI(user?.id || '');
       setOpenAiData({
         question: userQuestion,
         result: response.replace(/\*/g, ''),
@@ -139,14 +130,15 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                 <div className="flex items-center justify-between gap-4 px-5 py-4 border-b">
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3">
-                      <LazyLoadImage
+                      {/* <LazyLoadImage
                         alt="foto"
                         effect="blur"
                         src={BLACK_OPENAI}
                         width={30}
                         height={30}
                         className="bg-white rounded-lg"
-                      />
+                      /> */}
+                      <RiRobot2Line />
                       <h1 className="font-medium whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[150px]">
                         Open Ai
                       </h1>
@@ -166,11 +158,12 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                   viewportRef={viewport}
                   type="scroll"
                   className="flex flex-col justify-between flex-1 bg-black h-max bg-opacity-10">
-                  <img
+                  {/* <img
                     src={BLACK_OPENAI}
                     alt=""
                     className="absolute w-1/2 transform -translate-x-1/2 -translate-y-1/2 filter grayscale blur-sm contrast-0 top-1/2 left-1/2"
-                  />
+                  /> */}
+                  <RiRobot2Line />
                   <mo.div
                     className="p-8 max-h-[300px] min-h-[200px] flex-1"
                     ref={ref}
@@ -298,7 +291,7 @@ export default function ModalGenerateOpenAi({ children }: Props) {
                           ? () => {
                               toastError(
                                 'Openai limit has run out, try again tomorrow',
-                                `openai-${new Date().getTime()}`
+                                `generateAI-${new Date().getTime()}`
                               );
                             }
                           : handleQuestiontoOpenAi

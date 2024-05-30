@@ -22,7 +22,7 @@ import EditButtonChat from '../atoms/chat/EditButtonChat';
 import HideButtonChat from '../atoms/chat/HideButtonChat';
 import ImageChat from '../atoms/chat/ImageChat';
 import MessageChat from '../atoms/chat/MessageChat';
-import OpenAiChat from '../atoms/chat/OpenAiChat';
+import GenerateAIChat from '../atoms/chat/GenerateAIChat';
 import ReplyButtonChat from '../atoms/chat/ReplyButtonChat';
 import ReplyChat from '../atoms/chat/ReplyChat';
 import TimeDisplay from '../atoms/TimeDisplay';
@@ -114,8 +114,8 @@ export default function CardRightChat({ chat, scrollToChat }: Props) {
                         {chat.content.type === 'picture' && (
                           <ImageChat chat={chat} />
                         )}
-                        {chat.content.type === 'openai' && (
-                          <OpenAiChat chat={chat} varian="right" />
+                        {chat.content.type === 'generateAI' && (
+                          <GenerateAIChat chat={chat} varian="right" />
                         )}
                       </div>
                     )}

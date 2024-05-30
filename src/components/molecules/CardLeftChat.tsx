@@ -21,7 +21,7 @@ import DeletedChat from '../atoms/chat/DeletedChat';
 import DownloadButtonChat from '../atoms/chat/DownloadButtonChat';
 import ImageChat from '../atoms/chat/ImageChat';
 import MessageChat from '../atoms/chat/MessageChat';
-import OpenAiChat from '../atoms/chat/OpenAiChat';
+import GenerateAIChat from '../atoms/chat/GenerateAIChat';
 import ReplyButtonChat from '../atoms/chat/ReplyButtonChat';
 import ReplyChat from '../atoms/chat/ReplyChat';
 import TimeDisplay from '../atoms/TimeDisplay';
@@ -126,8 +126,8 @@ export default function CardLeftChat({ chat, scrollToChat }: Props) {
                           {chat.content.type === 'picture' && (
                             <ImageChat chat={chat} />
                           )}
-                          {chat.content.type === 'openai' && (
-                            <OpenAiChat chat={chat} varian="left" />
+                          {chat.content.type === 'generateAI' && (
+                            <GenerateAIChat chat={chat} varian="left" />
                           )}
                         </div>
                       )}

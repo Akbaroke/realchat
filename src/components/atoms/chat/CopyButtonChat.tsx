@@ -25,7 +25,7 @@ ${chat?.message}`;
   return (
     <CopyButton
       value={
-        chat.content?.type === 'openai' ? copyOpenAiWithMessage : chat.message
+        chat.content?.type === 'generateAI' ? copyOpenAiWithMessage : chat.message
       }>
       {({ copied, copy }) => (
         <motion.li

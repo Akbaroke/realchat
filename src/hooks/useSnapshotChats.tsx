@@ -12,7 +12,7 @@ import {
 import { useEffect, useState } from 'react';
 
 export interface Content {
-  type: 'picture' | 'coding' | 'openai';
+  type: 'picture' | 'coding' | 'generateAI';
   data: File | string | OpenAiDataType;
 }
 

@@ -1,7 +1,7 @@
-import openai from '@/config/openai';
+import generateAI from '@/config/generateAI';
 
 export default async function requestOpenai(userQuestion: string) {
-  const response = await openai.chat.completions.create({
+  const response = await generateAI.chat.completions.create({
     messages: [
       {
         role: 'user',

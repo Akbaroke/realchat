@@ -2,7 +2,7 @@ import { DataChats } from '@/hooks/useSnapshotChats';
 import { RootState } from '@/store';
 import cn from '@/utils/cn';
 import { LuImage } from 'react-icons/lu';
-import { SiOpenai } from 'react-icons/si';
+import { RiRobot2Line } from 'react-icons/ri';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useSelector } from 'react-redux';
 
@@ -20,8 +20,8 @@ function ChatContent({ chat }: { chat: DataChats }) {
   const contentIcon =
     chat?.reply?.content?.type === 'picture' ? (
       <LuImage size={13} />
-    ) : chat?.reply?.content?.type === 'openai' ? (
-      <SiOpenai size={13} />
+    ) : chat?.reply?.content?.type === 'generateAI' ? (
+      <RiRobot2Line size={13} />
     ) : null;
 
   return (

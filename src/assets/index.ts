@@ -1,6 +1,4 @@
 import DEFAULT_FOTO from './images/default_foto.png';
-import BLACK_OPENAI from './images/black-openai.png';
-import WHITE_OPENAI from './images/white-openai.png';
 
 import LOGO_REALCHAT from './logo/logo-realchat.svg';
 import LOGOTEXT_REALCHAT from './logo/logotext-realchat.svg';
@@ -14,8 +12,6 @@ import ICON_GITHUB from './icons/github.svg';
 
 export {
   DEFAULT_FOTO,
-  BLACK_OPENAI,
-  WHITE_OPENAI,
   LOGO_REALCHAT,
   LOGOTEXT_REALCHAT,
   ICON_REACT,

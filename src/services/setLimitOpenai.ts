@@ -24,7 +24,7 @@ export default async function setLimitOpenai(id: string) {
           ...data.data(),
           limitOpenai,
         });
-        console.log('update limit openai success');
+        console.log('update limit generateAI success');
       } catch (error) {
         console.error(error);
       }
@@ -35,7 +35,7 @@ export default async function setLimitOpenai(id: string) {
         ...data.data(),
         limitOpenai,
       });
-      console.log('set limit openai success');
+      console.log('set limit generateAI success');
     } catch (error) {
       console.error(error);
     }

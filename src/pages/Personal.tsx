@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiChevronLeft, FiRefreshCcw } from 'react-icons/fi';
 import { HiOutlineTrash } from 'react-icons/hi';
-import { RiOpenaiFill } from 'react-icons/ri';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { Loader, LoadingOverlay, ScrollArea } from '@mantine/core';
 import InputChat from '@/components/atoms/InputChat';
@@ -28,12 +27,12 @@ import ButtonInputImage, {
 } from '@/components/atoms/ButtonInputImage';
 import { Image } from 'primereact/image';
 import uploadImage from '@/services/uploadImage';
-import ModalGenerateOpenAi from '@/components/organisms/ModalGenerateOpenAi';
+import ModalGenerateAI from '@/components/organisms/ModalGenerateAI';
 import { resetOpenai } from '@/store/slices/openaiSlice';
 import checkValidatePersonal from '@/services/checkValidatePersonal';
 import { resetReply } from '@/store/slices/replySlice';
 import { LuImage } from 'react-icons/lu';
-import { SiOpenai } from 'react-icons/si';
+import { RiRobot2Line } from 'react-icons/ri';
 import CardLeftChat from '@/components/molecules/CardLeftChat';
 import CardRightChat from '@/components/molecules/CardRightChat';
 import sortMessageByDate, {
@@ -49,7 +48,7 @@ export default function Personal() {
   const [fried, setFriend] = useState<UserType>();
   const { user } = useSelector((state: RootState) => state.auth);
   const reply = useSelector((state: RootState) => state.reply);
-  const openaiContent = useSelector((state: RootState) => state.openai);
+  const openaiContent = useSelector((state: RootState) => state.generateAI);
   const viewport = useRef<HTMLDivElement>(null);
   const { chatsRealtime, isLoading } = useSnapshotChats(id || '');
   const dataFriend = chatsRealtime?.find((val) => val.user_id !== user?.id);
@@ -100,7 +99,7 @@ export default function Personal() {
   useEffect(() => {
     if (openaiContent.result !== '') {
       setContent({
-        type: 'openai',
+        type: 'generateAI',
         data: {
           question: openaiContent.question,
           result: openaiContent.result,
@@ -333,8 +332,8 @@ export default function Personal() {
                     {reply.chat?.content?.type === 'picture' && (
                       <LuImage size={13} />
                     )}
-                    {reply.chat?.content?.type === 'openai' && (
-                      <SiOpenai size={13} />
+                    {reply.chat?.content?.type === 'generateAI' && (
+                      <RiRobot2Line size={13} />
                     )}
                     <p
                       className={cn(
@@ -424,18 +423,18 @@ export default function Personal() {
                 }
               />
             </TooltipComp>
-            <TooltipComp label="Gemini AI">
-              <ModalGenerateOpenAi>
+            <TooltipComp label="Generative AI">
+              <ModalGenerateAI>
                 <Button
                   variant="outline"
                   className="w-max"
                   isDisabled={
-                    (content?.type !== 'openai' && !!content?.type) ||
+                    (content?.type !== 'generateAI' && !!content?.type) ||
                     isLoadingBtn
                   }>
-                  <RiOpenaiFill size={20} />
+                  <RiRobot2Line size={20} />
                 </Button>
-              </ModalGenerateOpenAi>
+              </ModalGenerateAI>
             </TooltipComp>
           </div>
           <button

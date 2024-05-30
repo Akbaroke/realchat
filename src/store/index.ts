@@ -10,7 +10,7 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     personal: personalReducer,
-    openai: openaiSlice,
+    generateAI: openaiSlice,
     reply: replySlice,
     reviews: reviewSlice,
     rooms: roomSlice,

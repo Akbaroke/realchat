@@ -11,7 +11,7 @@ const initialState: OpenaiState = {
 };
 
 export const openaiSlice = createSlice({
-  name: 'openai',
+  name: 'generateAI',
   initialState,
   reducers: {
     setOpenai: (state, action: PayloadAction<OpenaiState>) => {
