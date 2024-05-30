@@ -35,8 +35,8 @@ export default function Profile() {
             />
           </ModalProfilePicture>
           <div className="flex flex-col gap-1 flex-1">
-            <h1 className="font-bold text-[20px]">{user?.name}</h1>
-            <p className="text-gray-500 text-[14px] font-medium">
+            <h1 className="font-bold text-[20px] line-clamp-1">{user?.name}</h1>
+            <p className="text-gray-500 text-[14px] font-medium line-clamp-1">
               {user?.email}
             </p>
             <Button

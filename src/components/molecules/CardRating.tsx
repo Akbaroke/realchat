@@ -15,10 +15,10 @@ export default function CardRating({ review }: { review: Review }) {
           className="w-12 h-12 rounded-full bg-gray-200"
         />
         <div className="flex flex-col items-start gap-1">
-          <h1 className="font-semibold text-[14px] overflow-ellipsis overflow-hidden whitespace-nowrap sm:max-w-[250px] max-w-[120px]">
+          <h1 className="font-semibold text-[14px] line-clamp-1">
             {review.name}
           </h1>
-          <p className="text-[14px] text-gray-500 overflow-ellipsis overflow-hidden whitespace-nowrap sm:max-w-[200px] max-w-[120px]">
+          <p className="text-[14px] text-gray-500 line-clamp-2">
             {review.comment}
           </p>
         </div>

@@ -52,7 +52,7 @@ export default function CardRoom({ room }: Props) {
       />
       <div className="grid grid-cols-3 w-full">
         <div className="flex flex-col col-span-2">
-          <h1 className="text-[15px] font-medium overflow-ellipsis overflow-hidden whitespace-nowrap sm:max-w-[250px] max-w-[120px]">
+          <h1 className="text-[15px] font-medium line-clamp-1">
             {users?.name}
           </h1>
           <div className="flex items-center justify-start w-full gap-1">
@@ -74,7 +74,7 @@ export default function CardRoom({ room }: Props) {
             )}
             <p
               className={cn(
-                'whitespace-nowrap text-[13px] overflow-hidden overflow-ellipsis w-max flex-1',
+                'text-[13px] line-clamp-1 w-max flex-1',
                 {
                   'text-gray-400': room?.countUnread === 0,
                 }

@@ -39,6 +39,9 @@ import sortMessageByDate, {
   isSameDay,
   todayTimestamp,
 } from '@/utils/sortMessageByDate';
+import detectUrls from '@/utils/detectUrls';
+import useLinkPreview from '@/hooks/useLinkPreview';
+import LinkPreview from '@/components/molecules/LinkPreview';
 
 export default function Personal() {
   const navigate = useNavigate();
@@ -59,6 +62,8 @@ export default function Personal() {
   const [content, setContent] = useState<Content | null>(null);
   const [chatFocus, setChatFocus] = useState<string>('');
   const [oldChatsData, setOldChatsData] = useState<DataChats[]>([]);
+  const [urlPreview, setUrlPreview] = useState('')
+  const linkPreviewResult = useLinkPreview(urlPreview);
 
   useEffect(() => {
     return () => {
@@ -66,6 +71,17 @@ export default function Personal() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const fineUrl = detectUrls(textChat)
+    if(fineUrl.length !== 0){
+      console.log(fineUrl)
+      setUrlPreview(fineUrl[0])
+    }else {
+      setUrlPreview('')
+    }
+
+  }, [textChat])
 
   useEffect(() => {
     if (personal.personal_id === '') {
@@ -225,10 +241,10 @@ export default function Personal() {
               />
             </ModalProfilePicture>
             <div className="flex flex-col">
-              <h1 className="font-medium whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[150px]">
+              <h1 className="font-medium line-clamp-1">
                 {dataFriend?.name || personal.name || fried?.name}
               </h1>
-              <p className="whitespace-nowrap text-[12px] overflow-hidden overflow-ellipsis max-w-[160px] sm:max-w-[200px]">
+              <p className="text-[12px] line-clamp-1">
                 {dataFriend?.bio}
               </p>
             </div>
@@ -406,6 +422,7 @@ export default function Personal() {
               </div>
             </div>
           )}
+          {!!(linkPreviewResult.data && urlPreview) && <LinkPreview data={linkPreviewResult.data} type='center' isLoading={linkPreviewResult.loading} />}
           <InputChat
             value={textChat}
             onChange={(e) => setTextChat(e.target.value)}

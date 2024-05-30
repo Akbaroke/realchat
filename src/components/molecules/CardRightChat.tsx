@@ -31,6 +31,8 @@ import {
   listVariantFromLefttoRight,
   listVariantFromRighttoLeft,
 } from '@/utils/VariantsMotion';
+import useLinkPreview from '@/hooks/useLinkPreview';
+import LinkPreview from './LinkPreview';
 
 type Props = {
   chat: DataChats;
@@ -43,6 +45,7 @@ export default function CardRightChat({ chat, scrollToChat }: Props) {
   const clickRef = useClickOutside(() => setIsOpen(false));
   const { user } = useSelector((state: RootState) => state.auth);
   const [isMessageHide, setIsMessageHide] = useState(chat.isHide);
+  const linkPreviewResult = useLinkPreview(chat?.message);
   const elementSize = useElementSize();
   const viewportSize = useViewportSize();
 
@@ -119,6 +122,8 @@ export default function CardRightChat({ chat, scrollToChat }: Props) {
                         )}
                       </div>
                     )}
+
+                    {!!(linkPreviewResult.data && chat?.message) && <LinkPreview data={linkPreviewResult.data} type='right' isLoading={linkPreviewResult.loading} />}
 
                     {chat.message && <MessageChat chat={chat} varian="right" />}
                   </>
