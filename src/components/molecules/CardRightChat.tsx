@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion as mo } from 'framer-motion';
 import { BsCheck, BsCheckAll, BsThreeDotsVertical } from 'react-icons/bs';
 import { GrFormEdit } from 'react-icons/gr';
@@ -33,6 +33,7 @@ import {
 } from '@/utils/VariantsMotion';
 import useLinkPreview from '@/hooks/useLinkPreview';
 import LinkPreview from './LinkPreview';
+import detectUrls from '@/utils/detectUrls';
 
 type Props = {
   chat: DataChats;
@@ -45,11 +46,22 @@ export default function CardRightChat({ chat, scrollToChat }: Props) {
   const clickRef = useClickOutside(() => setIsOpen(false));
   const { user } = useSelector((state: RootState) => state.auth);
   const [isMessageHide, setIsMessageHide] = useState(chat.isHide);
-  const linkPreviewResult = useLinkPreview(chat?.message);
   const elementSize = useElementSize();
   const viewportSize = useViewportSize();
-
+  const [urlPreview, setUrlPreview] = useState('')
+  const linkPreviewResult = useLinkPreview(urlPreview);
   const isCardOverFlow = elementSize.width > 200 && viewportSize.width <= 380;
+
+  useEffect(() => {
+    const fineUrl = detectUrls(chat?.message)
+    if(fineUrl.length !== 0){
+      console.log(fineUrl)
+      setUrlPreview(fineUrl[0])
+    }else {
+      setUrlPreview('')
+    }
+
+  }, [chat.message])
 
   const toggleHideShowMessage = () => {
     setIsMessageHide(!isMessageHide);

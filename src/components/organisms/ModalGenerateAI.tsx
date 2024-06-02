@@ -130,15 +130,9 @@ export default function ModalGenerateAI({ children }: Props) {
                 <div className="flex items-center justify-between gap-4 px-5 py-4 border-b">
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3">
-                      {/* <LazyLoadImage
-                        alt="foto"
-                        effect="blur"
-                        src={BLACK_OPENAI}
-                        width={30}
-                        height={30}
-                        className="bg-white rounded-lg"
-                      /> */}
-                      <RiRobot2Line />
+                      <div className="bg-black text-white p-1.5 rounded-full">
+                        <RiRobot2Line size={20}  />
+                      </div>
                       <h1 className="font-medium whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[150px]">
                         Open Ai
                       </h1>
@@ -158,12 +152,7 @@ export default function ModalGenerateAI({ children }: Props) {
                   viewportRef={viewport}
                   type="scroll"
                   className="flex flex-col justify-between flex-1 bg-black h-max bg-opacity-10">
-                  {/* <img
-                    src={BLACK_OPENAI}
-                    alt=""
-                    className="absolute w-1/2 transform -translate-x-1/2 -translate-y-1/2 filter grayscale blur-sm contrast-0 top-1/2 left-1/2"
-                  /> */}
-                  <RiRobot2Line />
+                  <RiRobot2Line size={150} className="absolute w-1/2 transform -translate-x-1/2 -translate-y-1/2 filter grayscale blur-sm contrast-0 top-1/2 left-1/2" />
                   <mo.div
                     className="p-8 max-h-[300px] min-h-[200px] flex-1"
                     ref={ref}
@@ -208,7 +197,6 @@ export default function ModalGenerateAI({ children }: Props) {
                                 sequence={[
                                   openAiData.result,
                                   () => setIsLoadingTyping(false),
-                                  () => console.log('done'),
                                 ]}
                                 wrapper="p"
                                 speed={50}
@@ -297,7 +285,7 @@ export default function ModalGenerateAI({ children }: Props) {
                           : handleQuestiontoOpenAi
                       }>
                       {isLoading || isLoadingTyping ? (
-                        <Loader color="dark" size="xs" />
+                        <Loader color="rgba(255, 255, 255, 1)" size="xs" />
                       ) : (
                         <AiOutlineArrowUp />
                       )}

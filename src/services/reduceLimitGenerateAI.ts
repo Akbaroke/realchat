@@ -13,7 +13,6 @@ export default async function reduceLimitGenerateAI(user_id: string) {
         count: limitOpenai - 1,
       },
     });
-    console.log('success reduce limit generateAI');
   } catch (error) {
     console.log(error);
   }

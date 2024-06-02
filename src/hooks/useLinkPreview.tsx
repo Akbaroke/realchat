@@ -1,6 +1,7 @@
 
 import { LinkPreviewInterface } from '@/components/molecules/LinkPreview';
 import axios, { AxiosError } from 'axios';
+// import { getLinkPreview } from 'link-preview-js';
 import { useEffect, useState } from 'react';
 
 export default function useLinkPreview(url: string) {
@@ -13,7 +14,8 @@ export default function useLinkPreview(url: string) {
       setLoading(true);
       try {
         const res = await axios.get(`${import.meta.env.VITE_APP_BASEURL_LINKPREVIEW}/api/link-preview?url=${url}`);
-        console.log(res.data);
+        // const res = await getLinkPreview(url)
+        // console.log(res);
         setData(res.data.result.siteData);
       } catch (error) {
         const err = error as AxiosError;
